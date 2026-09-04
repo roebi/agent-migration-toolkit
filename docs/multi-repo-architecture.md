@@ -8,7 +8,7 @@ Each department (Engineering/Dev-Ops, Product/QA, Customer Support,
 Sales/Account Mgmt, Legal/Compliance, Finance/Billing) owns its own
 repo, containing only:
 
-- process-table.yaml, following schema/process-table.schema.yaml
+- process-table.toml, following schema/process-table.schema.toml
 - a decision log (per templates/decision-log-entry.md)
 
 Department repos are independent - a department team can edit and
@@ -18,7 +18,7 @@ repo or this hub.
 ## Cross-department aggregation
 
 critical_path_timeline.py does not use git submodules. It fetches each
-department repo's process-table.yaml directly via
+department repo's process-table.toml directly via
 raw.githubusercontent.com (all department repos are public, matching
 the existing convention already used across roebi's repos), then runs
 gap_analysis_creator on each before building the combined critical

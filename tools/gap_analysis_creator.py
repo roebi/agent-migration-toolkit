@@ -1,7 +1,7 @@
 """Gap analysis creator.
 
-Reads a department process table (YAML, following
-schema/process-table.schema.yaml) and produces a gap table: one row
+Reads a department process table (TOML, following
+schema/process-table.schema.toml) and produces a gap table: one row
 per sub-process whose interface to the next process is not yet a
 clean OpenAPI contract.
 """
@@ -10,10 +10,11 @@ from __future__ import annotations
 
 import argparse
 import sys
+import tomllib
 from pathlib import Path
 from typing import Any
 
-import yaml
+import tomli_w
 
 REQUIRED_FIELDS = {
     "department",
@@ -29,10 +30,12 @@ VALID_INTERFACE_TYPES = {"openapi", "file", "manual", "none"}
 
 
 def load_process_table(path: Path) -> list[dict[str, Any]]:
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    if not isinstance(data, list):
-        raise ValueError("process table must be a YAML list of sub-process entries")
-    return data
+    with path.open("rb") as handle:
+        data = tomllib.load(handle)
+    table = data.get("sub_process")
+    if not isinstance(table, list):
+        raise ValueError("process table must contain a [[sub_process]] array of tables")
+    return table
 
 
 def validate_row(row: dict[str, Any]) -> list[str]:
@@ -83,18 +86,18 @@ def compute_gaps(process_table: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Create a gap table from a process table")
-    parser.add_argument("process_table", type=Path, help="path to process-table.yaml")
+    parser.add_argument("process_table", type=Path, help="path to process-table.toml")
     parser.add_argument("-o", "--output", type=Path, default=None, help="output path (default: stdout)")
     args = parser.parse_args(argv)
 
     table = load_process_table(args.process_table)
     gaps = compute_gaps(table)
-    output_yaml = yaml.dump(gaps, sort_keys=False, allow_unicode=True)
+    output_toml = tomli_w.dumps({"gap": gaps})
 
     if args.output:
-        args.output.write_text(output_yaml, encoding="utf-8")
+        args.output.write_text(output_toml, encoding="utf-8")
     else:
-        print(output_yaml)
+        print(output_toml)
     return 0
 
 

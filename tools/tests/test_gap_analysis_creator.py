@@ -5,7 +5,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from gap_analysis_creator import compute_gaps, validate_row  # noqa: E402
+from gap_analysis_creator import compute_gaps, load_process_table, validate_row  # noqa: E402
 
 
 def _row(**overrides):
@@ -89,3 +89,24 @@ def test_validate_row_reports_missing_fields():
 
 def test_validate_row_passes_on_valid_row():
     assert validate_row(_row()) == []
+
+
+def test_load_process_table_reads_toml_array_of_tables(tmp_path):
+    toml_content = """
+[[sub_process]]
+department = "Finance/Billing"
+process = "Invoice run"
+sub_process = "Match usage to contract"
+automation_grade = "manual"
+output_artifact = "match report (spreadsheet)"
+interface_type = "manual"
+"""
+    toml_path = tmp_path / "process-table.toml"
+    toml_path.write_text(toml_content, encoding="utf-8")
+
+    table = load_process_table(toml_path)
+
+    assert len(table) == 1
+    assert table[0]["sub_process"] == "Match usage to contract"
+    gaps = compute_gaps(table)
+    assert len(gaps) == 1
