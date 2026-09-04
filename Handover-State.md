@@ -1,7 +1,7 @@
 # Handover State
 
 ## Project
-agentifizierung-toolkit - shared hub repo for the agent-migration program
+agent-migration-toolkit - shared hub repo for the agent-migration program
 (process analysis, gap analysis, critical path timeline).
 
 ## Status

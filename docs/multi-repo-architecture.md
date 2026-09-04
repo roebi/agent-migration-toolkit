@@ -1,6 +1,6 @@
 # Multi-repo architecture
 
-This repo (agentifizierung-toolkit) is the shared hub: schema, docs,
+This repo (agent-migration-toolkit) is the shared hub: schema, docs,
 templates, and the Python tools. It gets published so department repos
 can pip install it rather than vendoring code.
 
