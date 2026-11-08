@@ -1,5 +1,9 @@
+import io
+from urllib.error import URLError
+
 import pytest
 
+from agent_migration_toolkit import sources
 from agent_migration_toolkit.schema import ValidationError
 from agent_migration_toolkit.sources import Source, load_all, parse_sources
 
@@ -113,8 +117,6 @@ def test_load_all_continues_after_failures_and_lists_reasons(tmp_path):
 
 
 def test_load_all_reports_network_error_as_failure(tmp_path):
-    from urllib.error import URLError
-
     def fetcher(url, timeout):
         raise URLError("404 Not Found")
 
@@ -123,8 +125,6 @@ def test_load_all_reports_network_error_as_failure(tmp_path):
 
 
 def test_load_all_reports_url_error_caused_by_timeout_as_timeout(tmp_path):
-    from urllib.error import URLError
-
     def fetcher(url, timeout):
         raise URLError(TimeoutError("timed out"))
 
@@ -142,10 +142,6 @@ def test_load_all_rejects_table_of_other_department(tmp_path):
 
 
 def test_urllib_fetcher_returns_decoded_body_and_passes_timeout(monkeypatch):
-    import io
-
-    from agent_migration_toolkit import sources
-
     seen = {}
 
     def fake_urlopen(url, timeout):
