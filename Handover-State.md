@@ -50,8 +50,8 @@ entry_point: A (requirements.md) + B (existing gap_analysis_creator.py)
 language: Python 3.11+
 test_framework: pytest + pytest-cov
 order: R-SCHEMA, R-SRC, R-GAP, R-TPL, R-TIME, CLI (R-GAP-004/005, R-TIME-009/010), R-DEPLOY
-done: []
-current: R-SCHEMA-001
-last_green_commit: 63175fe
+done: [R-SCHEMA-001..009, R-SRC-001..007, R-GAP-001..003, R-TPL-001..003]
+current: R-TIME-002 (schedule_department)
+last_green_commit: 12226a8
 exit_condition_met: false
 ```
