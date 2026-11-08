@@ -41,3 +41,14 @@ def test_validate_table_reports_invalid_automation_grade_with_row(row):
 @pytest.mark.parametrize("grade", ["full", "partial", "manual"])
 def test_validate_table_accepts_valid_automation_grades(row, grade):
     assert validate_table([row(automation_grade=grade)]) == []
+
+
+def test_validate_table_reports_invalid_interface_type_with_row(row):
+    errors = validate_table([row(interface_type="carrier_pigeon")])
+    assert len(errors) == 1
+    assert "interface_type" in errors[0] and "'carrier_pigeon'" in errors[0]
+
+
+@pytest.mark.parametrize("itype", ["openapi", "file", "manual", "none"])
+def test_validate_table_accepts_valid_interface_types(row, itype):
+    assert validate_table([row(interface_type=itype)]) == []

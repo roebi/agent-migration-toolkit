@@ -32,6 +32,8 @@ REQUIRED_FIELDS = (
 )
 
 VALID_GRADES = ("full", "partial", "manual")
+VALID_INTERFACE_TYPES = ("openapi", "file", "manual", "none")
+ENUM_FIELDS = {"automation_grade": VALID_GRADES, "interface_type": VALID_INTERFACE_TYPES}
 
 
 def _label(index: int, row: dict[str, Any]) -> str:
@@ -46,8 +48,7 @@ def validate_table(rows: list[dict[str, Any]]) -> list[str]:
         if missing:
             errors.append(f"{_label(index, row)}: missing fields {missing}")
             continue
-        if row["automation_grade"] not in VALID_GRADES:
-            errors.append(
-                f"{_label(index, row)}: invalid automation_grade {row['automation_grade']!r}"
-            )
+        for field, allowed in ENUM_FIELDS.items():
+            if row[field] not in allowed:
+                errors.append(f"{_label(index, row)}: invalid {field} {row[field]!r}")
     return errors
