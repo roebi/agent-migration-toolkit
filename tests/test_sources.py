@@ -151,3 +151,8 @@ def test_urllib_fetcher_returns_decoded_body_and_passes_timeout(monkeypatch):
     monkeypatch.setattr(sources.urllib.request, "urlopen", fake_urlopen)
     assert sources.urllib_fetcher(RAW, 2.0) == 'department = "Ä"'
     assert seen["args"] == (RAW, 2.0)
+
+
+def test_parse_sources_rejects_non_string_url():
+    with pytest.raises(ValidationError, match="raw.githubusercontent.com"):
+        parse_sources('[[department]]\nname = "D"\nurl = 5\n')

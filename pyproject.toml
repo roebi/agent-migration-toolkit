@@ -11,7 +11,8 @@ dependencies = [
 ]
 
 [project.scripts]
-gap-analysis-creator = "agent_migration_toolkit.gap_analysis_creator:main"
+gap-analysis-creator = "agent_migration_toolkit.cli:gap_main"
+critical-path-timeline = "agent_migration_toolkit.cli:timeline_main"
 
 [dependency-groups]
 dev = [
