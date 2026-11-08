@@ -1,11 +1,10 @@
-import sys
-from pathlib import Path
-
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from gap_analysis_creator import compute_gaps, load_process_table, validate_row  # noqa: E402
+from agent_migration_toolkit.gap_analysis_creator import (
+    compute_gaps,
+    load_process_table,
+    validate_row,
+)
 
 
 def _row(**overrides):

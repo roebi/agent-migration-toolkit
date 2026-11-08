@@ -29,6 +29,6 @@ only their own process-table.toml plus a decision log.
 ## Next steps
 - Define requirements for critical_path_timeline.py (R-PROC-005/007
   aggregation across department repos via raw.githubusercontent.com)
-- Add CI workflow: semgrep/bandit on tools/, pytest gate
+- Add CI workflow: semgrep/bandit on src/, pytest gate
 - Publish package to PyPI so department repos can pip install it
 - Confirm department repo naming convention, scaffold first one
