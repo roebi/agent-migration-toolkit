@@ -9,12 +9,8 @@ permissions:
   contents: read
 
 jobs:
-  gates:
-    # Same gate set as on every push: tests + coverage, ruff, bandit, semgrep (R-DEPLOY-005)
-    uses: ./.github/workflows/ci.yml
-
-  build:
-    needs: gates
+  check-tag:
+    # Fail fast, in parallel with the gates (R-DEPLOY-006)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +20,17 @@ jobs:
           version=$(uv version --short)
           test "v${version}" = "${GITHUB_REF_NAME}" || {
             echo "tag ${GITHUB_REF_NAME} does not match version ${version}"; exit 1; }
+
+  gates:
+    # Same gate set as on every push: tests + coverage, ruff, bandit, semgrep (R-DEPLOY-005)
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: [check-tag, gates]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
       - run: uv sync --locked
       - run: uv run pytest --cov=src
       - run: uv build

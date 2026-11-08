@@ -51,3 +51,11 @@ def test_release_publishes_only_after_ci_gates():
     jobs = load("release.yml")["jobs"]
     assert jobs["gates"]["uses"] == "./.github/workflows/ci.yml"
     assert "gates" in upstream(jobs, "publish")
+
+
+def test_release_publishes_only_when_tag_matches_package_version():
+    jobs = load("release.yml")["jobs"]
+    check = run_commands(jobs["check-tag"])
+    assert "uv version --short" in check
+    assert '"v${version}" = "${GITHUB_REF_NAME}"' in check
+    assert "check-tag" in upstream(jobs, "publish")
