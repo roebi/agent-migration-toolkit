@@ -1,7 +1,8 @@
 import pytest
 
 from agent_migration_toolkit.schema import ValidationError
-from agent_migration_toolkit.timeline import find_cycle, schedule_department
+from agent_migration_toolkit.sources import Loaded
+from agent_migration_toolkit.timeline import build_timeline, find_cycle, schedule_department
 
 
 def _names(items):
@@ -155,3 +156,49 @@ def test_cycle_in_depends_on_is_rejected_with_names(row):
 def test_find_cycle_returns_none_for_acyclic_table(row):
     rows = [row(sub_process="A"), row(sub_process="B", depends_on=["A"])]
     assert find_cycle(rows) is None
+
+
+def _dept(row, department, *efforts):
+    return [
+        row(department=department, sub_process=f"S{i}", effort_days=e)
+        for i, e in enumerate(efforts)
+    ]
+
+
+def test_build_timeline_schedules_each_department_and_lists_failures(row):
+    loaded = [
+        Loaded("Finance/Billing", rows=_dept(row, "Finance/Billing", 3)),
+        Loaded("Legal/Compliance", error="timeout after 10.0 s"),
+    ]
+    result = build_timeline(loaded)
+    assert [d["name"] for d in result["department"]] == ["Finance/Billing"]
+    assert result["failure"] == [
+        {"department": "Legal/Compliance", "reason": "timeout after 10.0 s"}
+    ]
+
+
+def test_build_timeline_reports_cycle_as_department_failure(row):
+    rows = [
+        row(sub_process="A", depends_on=["B"]),
+        row(sub_process="B", depends_on=["A"]),
+    ]
+    result = build_timeline([Loaded("Finance/Billing", rows=rows)])
+    assert result["department"] == []
+    assert "cycle" in result["failure"][0]["reason"]
+
+
+def test_build_timeline_program_is_longest_department_first_on_tie(row):
+    loaded = [
+        Loaded("Product/QA", rows=_dept(row, "Product/QA", 4)),
+        Loaded("Finance/Billing", rows=_dept(row, "Finance/Billing", 7)),
+        Loaded("Legal/Compliance", rows=_dept(row, "Legal/Compliance", 7)),
+    ]
+    assert build_timeline(loaded)["program"] == {
+        "length_days": 7,
+        "critical_department": "Finance/Billing",
+    }
+
+
+def test_build_timeline_program_without_departments_is_empty():
+    result = build_timeline([Loaded("Finance/Billing", error="boom")])
+    assert result["program"] == {"length_days": 0, "critical_department": ""}

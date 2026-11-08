@@ -7,6 +7,7 @@ from typing import Any
 
 from agent_migration_toolkit.gap import compute_gaps
 from agent_migration_toolkit.schema import ValidationError
+from agent_migration_toolkit.sources import Loaded
 
 GAP_FIELDS = ("process", "sub_process", "current_interface")
 TOLERANCE = 1e-9
@@ -96,3 +97,23 @@ def _block(earliest_start: float, length: float) -> str:
     if length == 0 or earliest_start < QUICK_RAMP_SHARE * length - TOLERANCE:
         return "quick_ramp"
     return "hardening"
+
+
+def build_timeline(loaded: list[Loaded]) -> dict[str, Any]:
+    """Schedule every loaded department and summarise the program (R-TIME-001/007)."""
+    departments: list[dict[str, Any]] = []
+    failures: list[dict[str, str]] = []
+    for item in loaded:
+        if item.rows is None:
+            failures.append({"department": item.department, "reason": str(item.error)})
+            continue
+        try:
+            departments.append(schedule_department(item.department, item.rows))
+        except ValidationError as exc:
+            failures.append({"department": item.department, "reason": str(exc)})
+    longest = max(departments, key=lambda d: d["critical_path_days"], default=None)
+    program = {
+        "length_days": longest["critical_path_days"] if longest else 0,
+        "critical_department": longest["name"] if longest else "",
+    }
+    return {"program": program, "department": departments, "failure": failures}
