@@ -2,18 +2,32 @@
 
 from __future__ import annotations
 
-from graphlib import TopologicalSorter
+from graphlib import CycleError, TopologicalSorter
 from typing import Any
 
 from agent_migration_toolkit.gap import compute_gaps
+from agent_migration_toolkit.schema import ValidationError
 
 GAP_FIELDS = ("process", "sub_process", "current_interface")
 TOLERANCE = 1e-9
 QUICK_RAMP_SHARE = 0.2
 
 
+def find_cycle(rows: list[dict[str, Any]]) -> list[str] | None:
+    """Return the sub_process names of one depends_on cycle, or None (R-TIME-008)."""
+    graph = {row["sub_process"]: row.get("depends_on", []) for row in rows}
+    try:
+        TopologicalSorter(graph).prepare()
+    except CycleError as exc:
+        return exc.args[1]
+    return None
+
+
 def schedule_department(department: str, rows: list[dict[str, Any]]) -> dict[str, Any]:
     """Schedule the gap rows of one department's validated table."""
+    cycle = find_cycle(rows)
+    if cycle:
+        raise ValidationError(f"depends_on cycle: {' -> '.join(cycle)}")
     gaps = compute_gaps(rows)
     estimated = {gap["sub_process"]: gap for gap in gaps if "effort_days" in gap}
     unestimated = [gap for gap in gaps if "effort_days" not in gap]

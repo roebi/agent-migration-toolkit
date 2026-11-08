@@ -1,4 +1,7 @@
-from agent_migration_toolkit.timeline import schedule_department
+import pytest
+
+from agent_migration_toolkit.schema import ValidationError
+from agent_migration_toolkit.timeline import find_cycle, schedule_department
 
 
 def _names(items):
@@ -136,3 +139,19 @@ def test_near_zero_slack_is_reported_as_zero(row):
         row(sub_process="B", effort_days=0.2, depends_on=["A"]),
     ]
     assert all(t["slack_days"] == 0 for t in schedule_department("D", rows)["task"])
+
+
+def test_cycle_in_depends_on_is_rejected_with_names(row):
+    rows = [
+        row(sub_process="A", effort_days=1, depends_on=["C"]),
+        row(sub_process="B", effort_days=1, depends_on=["A"]),
+        row(sub_process="C", interface_type="openapi", depends_on=["B"]),
+    ]
+    with pytest.raises(ValidationError, match="cycle") as excinfo:
+        schedule_department("Finance/Billing", rows)
+    assert all(name in str(excinfo.value) for name in "ABC")
+
+
+def test_find_cycle_returns_none_for_acyclic_table(row):
+    rows = [row(sub_process="A"), row(sub_process="B", depends_on=["A"])]
+    assert find_cycle(rows) is None
