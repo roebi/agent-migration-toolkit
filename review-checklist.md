@@ -60,6 +60,8 @@ All tests pass (183 passed, 5 skipped after review 2).
 | R-DOC-003 | `test_documented_command_runs_with_documented_exit_code`, `test_every_example_process_table_is_valid` | yes | every `$` command in README and usage guide runs in-process on docs/examples |
 | R-DOC-004 | `test_changelog_*` | yes | Keep a Changelog 1.1.0 structure |
 | R-DOC-005 | `test_metadata_*` | yes | urls, license, classifiers, keywords |
+| R-DEPLOY-005 | test_workflows.py `test_ci_can_be_called_as_reusable_workflow`, `test_release_publishes_only_after_ci_gates`, `test_no_gate_or_release_step_may_fail_silently` | yes | CI run #5 (42489751733) on 4fdc0ee green with the new `workflow_call` trigger; release path verified at the v0.1.1 release (F-16) |
+| R-DEPLOY-006 | test_workflows.py `test_release_publishes_only_when_tag_matches_package_version` | yes | check unchanged from v0.1.0, now its own job `check-tag` |
 | NFR-06 | `test_build_timeline_six_departments_of_200_rows_under_5_seconds` | yes | ~0.01 s |
 
 ## Architecture Compliance
@@ -133,6 +135,23 @@ All tests pass (183 passed, 5 skipped after review 2).
     container lost access - podman_run.sh - minor - FIXED (`:z`, shared
     label; labels restored by roebi with chcon on the host)
 
+13. F-13 (review 3) workflow tests checked that each gate command is
+    present, but a gate could still be disabled with `continue-on-error`
+    without any test failing (R-DEPLOY-002/005) - tests/test_workflows.py
+    - minor - FIXED (guard test over all jobs and steps of both workflows)
+14. F-14 (review 3) publishing a release in the web GUI creates the tag,
+    which is a push, so ci.yml runs once for the tag push and once more
+    as `gates` inside release.yml (matrix runs twice per release) -
+    .github/workflows/ci.yml - minor - accepted (costs runner minutes
+    only; filtering tags out of push would hide tag-only CI results)
+15. F-15 (review 3) CHANGELOG.md `[Unreleased]` has no entry for the
+    release gate - minor - for the release phase (moves it into 0.1.1)
+16. F-16 (review 3) the new release job graph (check-tag + gates ->
+    build -> publish) has not run on GitHub yet; the wrong-tag path is
+    covered only by the structure test - .github/workflows/release.yml
+    - minor - verify with the v0.1.1 release run; actionlint could not
+    run in the dev container (download not permitted)
+
 ## Fix Log
 
 | Date | Finding | Commit | Result |
@@ -141,6 +160,7 @@ All tests pass (183 passed, 5 skipped after review 2).
 | 2026-11-08 | F-04, F-06, F-08 (R-DOC) | ca7aa59..0c5c140 | README, usage guide, examples, CHANGELOG, metadata; 178 passing |
 | 2026-11-08 | F-05, F-09 | 5eacdf6 | 5 new tests, 183 passing, coverage 100% |
 | 2026-11-08 | F-11, F-12 | (this commit) | 2 new tests, 185 passing, coverage 100% |
+| 2026-11-08 | F-13 (review 3) | (this commit) | 1 new guard test, 191 passing, coverage 100% |
 
 ## Result
 
@@ -152,4 +172,21 @@ Review 2:
 phase: review
 status: done
 output: review-checklist.md - 0 critical, 0 major, 1 minor open (F-07 accepted); F-10 CI verified, release workflow verified by the v0.1.0 GitHub release
+```
+
+Review 3 (iteration 2, release gate, diff 0f95f28..HEAD):
+
+- Architecture: ci.yml `workflow_call`, release.yml job graph and
+  test_workflows.py match the "Release Gate" section of architecture.md.
+- Security: no secrets; top-level `contents: read`; `id-token: write`
+  only on `publish` (tested); publish job stays in release.yml, so the
+  PyPI trusted publisher (workflow release.yml, environment pypi) is
+  unchanged.
+- Quality: ruff clean, no em/en dashes, src/ unchanged (bandit/semgrep
+  green in CI run #5).
+
+```yaml
+phase: review
+status: done
+output: review-checklist.md - 0 critical, 0 major; F-13 fixed; F-14 accepted; F-15 for release; F-16 verify at v0.1.1 release
 ```

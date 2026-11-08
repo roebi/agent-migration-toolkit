@@ -6,7 +6,7 @@ goal: >-
   Shared hub toolkit for the agent-migration program - process-table
   schema, templates, gap analysis and a cross-department critical path
   timeline - published so department repos can pip install it.
-current_phase: review
+current_phase: release
 iteration: 2 (release gate - R-DEPLOY-005/006, target v0.1.1)
 results:
   - phase: requirements
@@ -36,6 +36,9 @@ iteration_2:
     status: done
     output: R-DEPLOY-005/006 test-first in tests/test_workflows.py (5 tests); ci.yml workflow_call, release.yml check-tag + gates -> build -> publish, build no longer reruns pytest; 190 passed + 5 skipped, 100% coverage, ruff clean; workflows not yet run on GitHub (verify on push + v0.1.1 release)
   - phase: review
+    status: done
+    output: review 3 - 0 critical, 0 major; F-13 fixed (continue-on-error guard); F-14 accepted (CI runs twice per release); F-15 changelog entry in release; F-16 verify release job graph at v0.1.1; CI run #5 (42489751733) green
+  - phase: release
     status: pending
 ```
 

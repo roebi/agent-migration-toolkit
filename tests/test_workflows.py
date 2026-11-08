@@ -67,3 +67,11 @@ def test_release_grants_oidc_token_only_to_publish():
     for name, job in workflow["jobs"].items():
         has_token = job.get("permissions", {}).get("id-token") == "write"
         assert has_token == (name == "publish")
+
+
+def test_no_gate_or_release_step_may_fail_silently():
+    for name in ("ci.yml", "release.yml"):
+        for job in load(name)["jobs"].values():
+            assert "continue-on-error" not in job
+            for step in job.get("steps", []):
+                assert "continue-on-error" not in step
