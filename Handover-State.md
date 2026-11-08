@@ -46,8 +46,12 @@ exit_condition_met_iteration_2: true
 
 ## Open items after v0.1.1
 
-- Branch protection on `main` (required CI checks before merge): GitHub
-  setting for roebi in the web GUI, out of scope of the repo.
+- Branch protection on `main`: DONE 2026-11-08 by roebi - ruleset `main`
+  (restrict deletions, block force pushes, pull request required with 0
+  approvals, 7 required checks: security + test on ubuntu/macos/windows x
+  py3.11/py3.13). Direct pushes to main are rejected; work goes branch ->
+  PR -> green CI -> merge. Do not add `gates / ...` checks: they only
+  exist in release runs.
 - README now shows `uv tool install` (Unreleased in CHANGELOG); reaches
   the PyPI page with the next release.
 
