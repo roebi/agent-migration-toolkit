@@ -21,19 +21,20 @@ results:
     status: done
     output: review-checklist.md - review 2 passed 2026-11-08 - 0 critical, 0 major; F-01..F-06, F-08, F-09, F-11, F-12 fixed; F-07 accepted; F-10 container verified by roebi, CI green on GitHub (run 42487302254)
   - phase: release
-    status: in_progress
-    output: v0.1.0 (first release, version already 0.1.0); CHANGELOG [0.1.0] - 2026-11-08; release.yml now triggers on GitHub release published; roebi pushes main, then creates release + tag v0.1.0 in the GitHub web GUI (starts release.yml -> PyPI via trusted publishing, environment pypi)
+    status: done
+    output: v0.1.0 released 2026-11-08 - GitHub release + tag v0.1.0 on 0627ae3 (created by roebi in the web GUI); release.yml run 42488225444 green; published to https://pypi.org/project/agent-migration-toolkit/0.1.0/ via trusted publishing; install from PyPI verified (both CLIs on docs/examples)
+exit_condition_met: true
 ```
 
-## Carry-over findings from the pre-analysis (2026-11-08)
+## Open items after v0.1.0
 
-All resolved in the implement phase: coverage 77% -> 100%, ruff TRY004
-gone with the legacy module, stale template link removed. Still open:
-container build and CI/release runs need podman and a pushed GitHub
-repo (OQ-2, review F-10). Remote `origin` is set to
-https://github.com/roebi/agent-migration-toolkit.git (empty repo created
-by roebi, nothing pushed yet). PyPI pending trusted publisher created by
-roebi; GitHub environment `pypi` still to be created.
+- Decide NFR-02 scope: keep native Windows/macOS in CI, or Linux only
+  (Windows via WSL/podman) - requirement change, next iteration.
+- Review F-07 (several asserts per test) accepted, no action.
+- Deferred from the start: department repo scaffolding (6x) once the
+  naming convention is decided; out of scope of the toolkit.
+- Next iteration starts again at requirements (orchestrate-sw-dev-en),
+  e.g. R-API if an HTTP/OpenAPI interface is wanted.
 
 ## Context
 
