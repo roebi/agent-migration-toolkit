@@ -29,3 +29,15 @@ def test_validate_table_reports_each_missing_field_by_name(row):
     errors = validate_table([bad])
     assert len(errors) == 1
     assert "process" in errors[0] and "output_artifact" in errors[0]
+
+
+def test_validate_table_reports_invalid_automation_grade_with_row(row):
+    errors = validate_table([row(automation_grade="mostly")])
+    assert len(errors) == 1
+    assert "automation_grade" in errors[0] and "'mostly'" in errors[0]
+    assert "Match usage to contract" in errors[0]
+
+
+@pytest.mark.parametrize("grade", ["full", "partial", "manual"])
+def test_validate_table_accepts_valid_automation_grades(row, grade):
+    assert validate_table([row(automation_grade=grade)]) == []

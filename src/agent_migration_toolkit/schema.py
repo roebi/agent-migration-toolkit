@@ -31,6 +31,8 @@ REQUIRED_FIELDS = (
     "interface_type",
 )
 
+VALID_GRADES = ("full", "partial", "manual")
+
 
 def _label(index: int, row: dict[str, Any]) -> str:
     return f"row {index + 1} ({row.get('department', '?')}/{row.get('sub_process', '?')})"
@@ -43,4 +45,9 @@ def validate_table(rows: list[dict[str, Any]]) -> list[str]:
         missing = [field for field in REQUIRED_FIELDS if field not in row]
         if missing:
             errors.append(f"{_label(index, row)}: missing fields {missing}")
+            continue
+        if row["automation_grade"] not in VALID_GRADES:
+            errors.append(
+                f"{_label(index, row)}: invalid automation_grade {row['automation_grade']!r}"
+            )
     return errors
