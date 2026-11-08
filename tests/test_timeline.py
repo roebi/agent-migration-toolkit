@@ -13,3 +13,11 @@ def test_schedule_only_includes_gap_rows(row):
     result = schedule_department("Finance/Billing", rows)
     assert _names(result["task"]) == ["Gap"]
     assert result["task"][0]["earliest_start"] == 0
+
+
+def test_gap_without_effort_is_unestimated_and_not_scheduled(row):
+    rows = [row(sub_process="Known", effort_days=1), row(sub_process="Unknown")]
+    result = schedule_department("Finance/Billing", rows)
+    assert _names(result["task"]) == ["Known"]
+    assert _names(result["unestimated"]) == ["Unknown"]
+    assert result["unestimated"][0]["current_interface"] == "manual"
