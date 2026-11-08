@@ -20,3 +20,27 @@ def parse_table(text: str) -> list[dict[str, Any]]:
     if not isinstance(rows, list):
         raise ValidationError("process table must contain a [[sub_process]] array of tables")
     return rows
+
+
+REQUIRED_FIELDS = (
+    "department",
+    "process",
+    "sub_process",
+    "automation_grade",
+    "output_artifact",
+    "interface_type",
+)
+
+
+def _label(index: int, row: dict[str, Any]) -> str:
+    return f"row {index + 1} ({row.get('department', '?')}/{row.get('sub_process', '?')})"
+
+
+def validate_table(rows: list[dict[str, Any]]) -> list[str]:
+    """Return every contract violation in the table, one message per problem."""
+    errors: list[str] = []
+    for index, row in enumerate(rows):
+        missing = [field for field in REQUIRED_FIELDS if field not in row]
+        if missing:
+            errors.append(f"{_label(index, row)}: missing fields {missing}")
+    return errors
