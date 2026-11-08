@@ -27,4 +27,7 @@ def _source(index: int, entry: dict[str, Any]) -> Source:
     name = entry.get("name")
     if not isinstance(name, str) or not name:
         raise ValidationError(f"source entry {index + 1}: missing name")
-    return Source(name, url=entry.get("url"), path=entry.get("path"))
+    url, path = entry.get("url"), entry.get("path")
+    if (url is None) == (path is None):
+        raise ValidationError(f"source {name!r}: needs exactly one of url or path")
+    return Source(name, url=url, path=path)

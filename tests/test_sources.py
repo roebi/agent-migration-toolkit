@@ -25,3 +25,13 @@ def test_parse_sources_without_department_array_raises():
 def test_parse_sources_entry_without_name_raises():
     with pytest.raises(ValidationError, match="name"):
         parse_sources('[[department]]\npath = "a.toml"\n')
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [f'url = "{RAW}"\npath = "a.toml"\n', ""],
+    ids=["both", "neither"],
+)
+def test_parse_sources_requires_exactly_one_of_url_and_path(fields):
+    with pytest.raises(ValidationError, match="Finance/Billing.*exactly one of url or path"):
+        parse_sources(f'[[department]]\nname = "Finance/Billing"\n{fields}')
