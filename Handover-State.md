@@ -22,7 +22,7 @@ results:
     output: review-checklist.md - review 2 passed 2026-11-08 - 0 critical, 0 major; F-01..F-06, F-08, F-09, F-11, F-12 fixed; F-07 accepted; F-10 container verified by roebi, CI green on GitHub (run 42487302254)
   - phase: release
     status: in_progress
-    output: v0.1.0 (first release, version already 0.1.0); CHANGELOG [0.1.0] - 2026-11-08; annotated tag v0.1.0 created locally, waiting for roebi to push the tag (starts release.yml -> PyPI via trusted publishing, environment pypi)
+    output: v0.1.0 (first release, version already 0.1.0); CHANGELOG [0.1.0] - 2026-11-08; release.yml now triggers on GitHub release published; roebi pushes main, then creates release + tag v0.1.0 in the GitHub web GUI (starts release.yml -> PyPI via trusted publishing, environment pypi)
 ```
 
 ## Carry-over findings from the pre-analysis (2026-11-08)

@@ -207,7 +207,7 @@ reason = "timeout after 10.0 s"
 | Lint | ruff (project config) | NFR-08 |
 | Security scan | bandit + semgrep in CI | R-DEPLOY-002 |
 | CI | GitHub Actions, matrix Python 3.11 + 3.13 on ubuntu, macos, windows | NFR-02, framework default 3.13 |
-| Publish | PyPI Trusted Publishing (OIDC) on tag `v*.*.*` | R-DEPLOY-003; name `agent-migration-toolkit` is free on PyPI (checked 2026-11-08) |
+| Publish | PyPI Trusted Publishing (OIDC) when a GitHub release with tag `vX.Y.Z` is published | R-DEPLOY-003; name `agent-migration-toolkit` is free on PyPI (checked 2026-11-08) |
 | Container | python:3.12-slim + uv | R-DEPLOY-004, already scaffolded |
 
 ## Testability Constraints

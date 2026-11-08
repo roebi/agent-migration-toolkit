@@ -1,8 +1,9 @@
 name: Release
 
+# Started by publishing a GitHub release (web GUI) with a new tag vX.Y.Z.
 on:
-  push:
-    tags: ["v*.*.*"]
+  release:
+    types: [published]
 
 permissions:
   contents: read

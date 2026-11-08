@@ -121,7 +121,7 @@ All tests pass (183 passed, 5 skipped after review 2).
     release workflow re-runs the tests before publishing. 2026-11-08:
     container verified by roebi on host (build, test suite, both CLIs,
     exit codes 0/2/1); CI green on GitHub (run 42487302254, all 7 jobs);
-    release workflow is verified by the v0.1.0 tag push
+    release workflow (trigger changed to `release: published` for the GitHub GUI flow) is verified by the v0.1.0 release
 11. F-11 a row with missing required fields skips its enum, effort_days
     and depends_on checks, so docs/examples/broken-table.toml reports
     only the missing fields, not `interface_type = "carrier_pigeon"`;
@@ -151,5 +151,5 @@ Review 2:
 ```yaml
 phase: review
 status: done
-output: review-checklist.md - 0 critical, 0 major, 1 minor open (F-07 accepted); F-10 CI verified, release workflow verified by the v0.1.0 tag push
+output: review-checklist.md - 0 critical, 0 major, 1 minor open (F-07 accepted); F-10 CI verified, release workflow verified by the v0.1.0 GitHub release
 ```
