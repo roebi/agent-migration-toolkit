@@ -3,9 +3,17 @@
 Review 1 - 2026-11-08 - reviewer: Claude agent (code-review-en) -
 basis: requirements.md, architecture.md, src/, tests/ at 247a3eb.
 
+Review 2 - 2026-11-08 - reviewer: Claude agent (code-review-en) -
+basis: requirements.md incl. R-DOC, architecture.md, src/, tests/, docs
+at 0c5c140; fixes up to 5eacdf6. Gates re-run: 183 passed / 5 skipped
+(install commands in docs) on Python 3.11 and 3.13, coverage 100%,
+ruff, bandit (high), semgrep (p/python, error), dash check over src,
+tests, templates, schema, docs, README, CHANGELOG; `twine check
+--strict` on the built wheel and sdist passes.
+
 ## Requirements Coverage
 
-All tests pass (131 after the fixes below).
+All tests pass (183 passed, 5 skipped after review 2).
 
 | Requirement | Covered by test | Test passes | Notes |
 |---|---|---|---|
@@ -47,6 +55,11 @@ All tests pass (131 after the fixes below).
 | R-DEPLOY-002 | .github/workflows/ci.yml | not run | YAML valid; bandit + semgrep clean locally; needs GitHub remote (OQ-2) |
 | R-DEPLOY-003 | .github/workflows/release.yml | not run | needs GitHub remote + PyPI trusted publisher (OQ-2) |
 | R-DEPLOY-004 | Dockerfile, entrypoint.sh | not run | no podman in dev container |
+| R-DOC-001 | test_docs.py `test_readme_*` | yes | README is the PyPI description; links absolute; twine check passes |
+| R-DOC-002 | `test_usage_guide_documents` | yes | 23 required topics |
+| R-DOC-003 | `test_documented_command_runs_with_documented_exit_code`, `test_every_example_process_table_is_valid` | yes | every `$` command in README and usage guide runs in-process on docs/examples |
+| R-DOC-004 | `test_changelog_*` | yes | Keep a Changelog 1.1.0 structure |
+| R-DOC-005 | `test_metadata_*` | yes | urls, license, classifiers, keywords |
 | NFR-06 | `test_build_timeline_six_departments_of_200_rows_under_5_seconds` | yes | ~0.01 s |
 
 ## Architecture Compliance
@@ -85,33 +98,44 @@ All tests pass (131 after the fixes below).
    src/agent_migration_toolkit/schema.py:100 - major - FIXED ab479ab
 3. F-03 urllib followed redirects to any host (R-SRC-003) -
    src/agent_migration_toolkit/sources.py:55 - major - FIXED ab479ab
-4. F-04 No README, no usage documentation; pyproject has no `readme`,
-   so the PyPI page would be empty and department teams have no usage
-   guide. Not covered by any requirement -> requirements gap, must go
-   back through gather-requirements (proposed group R-DOC) -
-   README.md / docs/ / pyproject.toml - major - OPEN
-5. F-05 stdout output on Windows with a non-UTF-8 redirect could raise
-   UnicodeEncodeError for non-Latin characters (NFR-02/03) -
-   src/agent_migration_toolkit/cli.py:107 - minor - follow-up
+4. F-04 No README, no usage documentation; pyproject had no `readme`.
+   Requirements gap -> R-DOC-001..005 added and approved -
+   README.md / docs/ / CHANGELOG.md / pyproject.toml - major - FIXED
+   ca7aa59, 8d630bf, 1d39962, 0c5c140
+5. F-05 stdout output on Windows with a non-UTF-8 console encoding could
+   raise UnicodeEncodeError (NFR-02/03) - cli.py `_write` - minor -
+   FIXED 5eacdf6 (stdout always UTF-8)
 6. F-06 source `path` may be absolute or leave the source list's
-   directory; acceptable because the source list is the user's own
-   local config, but should be documented - sources.py:99 - minor -
-   document with F-04
+   directory; acceptable for a local, user-owned config - sources.py -
+   minor - DOCUMENTED in docs/usage.md ("only use source lists you trust")
 7. F-07 several tests assert more than one property of the same result -
    tests/ - minor - accepted (one behaviour per test)
-8. F-08 CHANGELOG.md (keepachangelog 1.1.0) does not exist yet - it is
-   created by the release phase (release-sw-project-en) - minor - release
+8. F-08 CHANGELOG.md missing - minor - FIXED 8d630bf (R-DOC-004); the
+   release phase moves `[Unreleased]` to the version section
+9. F-09 argparse exited with 2 on invalid arguments, the same code as a
+   partial timeline (R-TIME-010) - cli.py - minor - FIXED 5eacdf6
+   (invalid arguments now exit 1, `--help` still 0)
+10. F-10 CI, release workflow and container are written but have never
+    run (R-DEPLOY-002..004) - no GitHub push yet, no podman in the dev
+    container - minor - verify on first push / before tagging; the
+    release workflow re-runs the tests before publishing
 
 ## Fix Log
 
 | Date | Finding | Commit | Result |
 |---|---|---|---|
 | 2026-11-08 | F-01, F-02, F-03 | ab479ab | 8 new tests, 131 passing, coverage 100% |
+| 2026-11-08 | F-04, F-06, F-08 (R-DOC) | ca7aa59..0c5c140 | README, usage guide, examples, CHANGELOG, metadata; 178 passing |
+| 2026-11-08 | F-05, F-09 | 5eacdf6 | 5 new tests, 183 passing, coverage 100% |
 
 ## Result
 
+Review 1: blocked (F-04 open).
+
+Review 2:
+
 ```yaml
 phase: review
-status: blocked
-output: review-checklist.md - 0 critical, 1 major open (F-04 docs gap), 4 minor
+status: done
+output: review-checklist.md - 0 critical, 0 major, 2 minor open (F-07 accepted, F-10 verify CI/container on first push)
 ```

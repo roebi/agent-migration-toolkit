@@ -6,7 +6,7 @@ goal: >-
   Shared hub toolkit for the agent-migration program - process-table
   schema, templates, gap analysis and a cross-department critical path
   timeline - published so department repos can pip install it.
-current_phase: review
+current_phase: release
 results:
   - phase: requirements
     status: done
@@ -18,8 +18,8 @@ results:
     status: done
     output: all 38 requirements + NFR-06 implemented test-first; 123 tests, 100% coverage, ruff/bandit/semgrep clean; CI + release workflows and container written but not yet run (OQ-2)
   - phase: review
-    status: blocked
-    output: review-checklist.md - review 1 - 0 critical, 1 major open (F-04 no README/usage docs, needs R-DOC requirements), 4 minor; F-01..F-03 fixed in ab479ab
+    status: done
+    output: review-checklist.md - review 2 passed 2026-11-08 - 0 critical, 0 major; F-01..F-06, F-08, F-09 fixed; F-07 accepted; F-10 (CI/container never run) to verify on first push
   - phase: release
     status: pending
     output: tagged release + changelog
@@ -29,8 +29,11 @@ results:
 
 All resolved in the implement phase: coverage 77% -> 100%, ruff TRY004
 gone with the legacy module, stale template link removed. Still open:
-container build and CI/release runs need podman and a GitHub remote
-(OQ-2).
+container build and CI/release runs need podman and a pushed GitHub
+repo (OQ-2, review F-10). Remote `origin` is set to
+https://github.com/roebi/agent-migration-toolkit.git (empty repo created
+by roebi, nothing pushed yet). PyPI pending trusted publisher created by
+roebi; GitHub environment `pypi` still to be created.
 
 ## Context
 
