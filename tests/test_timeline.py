@@ -202,3 +202,25 @@ def test_build_timeline_program_is_longest_department_first_on_tie(row):
 def test_build_timeline_program_without_departments_is_empty():
     result = build_timeline([Loaded("Finance/Billing", error="boom")])
     assert result["program"] == {"length_days": 0, "critical_department": ""}
+
+
+def test_build_timeline_six_departments_of_200_rows_under_5_seconds(row):
+    import time
+
+    loaded = []
+    for d in range(6):
+        name = f"Dept{d}"
+        rows = [
+            row(
+                department=name,
+                sub_process=f"S{i}",
+                effort_days=1 + i % 5,
+                depends_on=[f"S{j}" for j in (i - 1, i - 7) if j >= 0],
+            )
+            for i in range(200)
+        ]
+        loaded.append(Loaded(name, rows=rows))
+    began = time.perf_counter()
+    result = build_timeline(loaded)
+    assert time.perf_counter() - began < 5
+    assert len(result["department"]) == 6
