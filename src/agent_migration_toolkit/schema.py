@@ -10,13 +10,17 @@ class ValidationError(ValueError):
     """Raised when a process table or source list breaks the contract."""
 
 
-def parse_table(text: str) -> list[dict[str, Any]]:
-    """Parse TOML text into the list of [[sub_process]] rows (R-SCHEMA-001)."""
+def parse_toml(text: str) -> dict[str, Any]:
+    """Parse TOML text, turning syntax errors into ValidationError."""
     try:
-        data = tomllib.loads(text)
+        return tomllib.loads(text)
     except tomllib.TOMLDecodeError as exc:
         raise ValidationError(f"not valid TOML: {exc}") from exc
-    rows = data.get("sub_process")
+
+
+def parse_table(text: str) -> list[dict[str, Any]]:
+    """Parse TOML text into the list of [[sub_process]] rows (R-SCHEMA-001)."""
+    rows = parse_toml(text).get("sub_process")
     if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
         raise ValidationError("process table must contain a [[sub_process]] array of tables")
     return rows

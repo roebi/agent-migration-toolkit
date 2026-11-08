@@ -1,0 +1,27 @@
+import pytest
+
+from agent_migration_toolkit.schema import ValidationError
+from agent_migration_toolkit.sources import Source, parse_sources
+
+RAW = "https://raw.githubusercontent.com/roebi/dept-finance/main/process-table.toml"
+
+
+def test_parse_sources_reads_url_and_path_entries():
+    text = (
+        f'[[department]]\nname = "Finance/Billing"\nurl = "{RAW}"\n\n'
+        '[[department]]\nname = "Legal/Compliance"\npath = "legal.toml"\n'
+    )
+    assert parse_sources(text) == [
+        Source("Finance/Billing", url=RAW, path=None),
+        Source("Legal/Compliance", url=None, path="legal.toml"),
+    ]
+
+
+def test_parse_sources_without_department_array_raises():
+    with pytest.raises(ValidationError, match=r"\[\[department\]\]"):
+        parse_sources('x = 1\n')
+
+
+def test_parse_sources_entry_without_name_raises():
+    with pytest.raises(ValidationError, match="name"):
+        parse_sources('[[department]]\npath = "a.toml"\n')
