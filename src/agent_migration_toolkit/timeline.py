@@ -8,6 +8,7 @@ from typing import Any
 from agent_migration_toolkit.gap import compute_gaps
 
 GAP_FIELDS = ("process", "sub_process", "current_interface")
+TOLERANCE = 1e-9
 
 
 def schedule_department(department: str, rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -15,7 +16,15 @@ def schedule_department(department: str, rows: list[dict[str, Any]]) -> dict[str
     gaps = compute_gaps(rows)
     estimated = {gap["sub_process"]: gap for gap in gaps if "effort_days" in gap}
     unestimated = [_pick(gap) for gap in gaps if "effort_days" not in gap]
-    return {"name": department, "task": _schedule(estimated), "unestimated": unestimated}
+    tasks = _schedule(estimated)
+    critical = sorted((t for t in tasks if t["critical"]), key=lambda t: t["earliest_start"])
+    return {
+        "name": department,
+        "critical_path_days": max((t["earliest_finish"] for t in tasks), default=0),
+        "critical_path": [t["sub_process"] for t in critical],
+        "task": tasks,
+        "unestimated": unestimated,
+    }
 
 
 def _pick(gap: dict[str, Any]) -> dict[str, Any]:
@@ -52,6 +61,7 @@ def _schedule(gaps: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
             "earliest_start": start[name],
             "earliest_finish": finish[name],
             "slack_days": latest_start[name] - start[name],
+            "critical": abs(latest_start[name] - start[name]) < TOLERANCE,
         }
         for name, gap in gaps.items()
     ]

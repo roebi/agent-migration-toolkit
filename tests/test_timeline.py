@@ -58,3 +58,36 @@ def test_tasks_are_scheduled_regardless_of_row_order(row):
     ]
     tasks = _by_name(schedule_department("Finance/Billing", rows))
     assert tasks["Late"]["earliest_start"] == 2
+
+
+def _diamond(row):
+    # A(3) -> C(2); B(1) -> C ; D(1) independent  => critical A, C ; length 5
+    return [
+        row(sub_process="A", effort_days=3),
+        row(sub_process="B", effort_days=1),
+        row(sub_process="C", effort_days=2, depends_on=["A", "B"]),
+        row(sub_process="D", effort_days=1),
+    ]
+
+
+def test_zero_slack_tasks_form_critical_path_with_length(row):
+    result = schedule_department("Finance/Billing", _diamond(row))
+    tasks = _by_name(result)
+    assert [n for n, t in tasks.items() if t["critical"]] == ["A", "C"]
+    assert result["critical_path"] == ["A", "C"]
+    assert result["critical_path_days"] == 5
+
+
+def test_critical_path_uses_float_tolerance(row):
+    rows = [
+        row(sub_process="A", effort_days=0.1),
+        row(sub_process="B", effort_days=0.2, depends_on=["A"]),
+        row(sub_process="C", effort_days=0.25),
+    ]
+    result = schedule_department("Finance/Billing", rows)
+    assert result["critical_path"] == ["A", "B"]
+
+
+def test_empty_department_has_zero_length(row):
+    result = schedule_department("Finance/Billing", [row(interface_type="openapi")])
+    assert result["critical_path"] == [] and result["critical_path_days"] == 0
