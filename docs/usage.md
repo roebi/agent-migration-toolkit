@@ -38,8 +38,9 @@ and fill it from the collection meeting (see `templates/`).
 | `manual` | yes | needs a schema and an OpenAPI endpoint |
 | `none` | yes | needs an artifact definition first |
 
-Validation reports every problem at once, with the row it belongs to:
-missing or non-string required fields, unknown enum values, negative or
+Validation reports every problem at once, with the row it belongs to,
+also several problems of the same row: missing or non-string required
+fields, unknown enum values, negative or
 non-finite `effort_days`, `depends_on` names that do not exist in the same
 department, and duplicate `sub_process` names.
 
@@ -74,7 +75,7 @@ An invalid table ends with exit code 1 and one line on stderr:
 ```console
 $ gap-analysis-creator docs/examples/broken-table.toml
 # exit: 1
-error: row 1 (Product/QA/Run regression suite): missing fields ['automation_grade', 'output_artifact']
+error: row 1 (Product/QA/Run regression suite): missing fields ['automation_grade', 'output_artifact']; row 1 (Product/QA/Run regression suite): invalid interface_type 'carrier_pigeon'
 ```
 
 ## 3. Critical path timeline

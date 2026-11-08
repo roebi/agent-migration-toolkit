@@ -70,16 +70,18 @@ def _text(row: dict[str, Any], field: str) -> str:
 
 
 def _row_problems(row: dict[str, Any], known: set[str]) -> list[str]:
+    """Every problem of one row; checks run on whatever fields are present (F-11)."""
+    problems: list[str] = []
     missing = [field for field in REQUIRED_FIELDS if field not in row]
     if missing:
-        return [f"missing fields {missing}"]
-    not_text = [field for field in REQUIRED_FIELDS if not isinstance(row[field], str)]
+        problems.append(f"missing fields {missing}")
+    not_text = [f for f in REQUIRED_FIELDS if f in row and not isinstance(row[f], str)]
     if not_text:
-        return [f"fields must be strings: {not_text}"]
-    problems = [
+        problems.append(f"fields must be strings: {not_text}")
+    problems += [
         f"invalid {field} {row[field]!r}"
         for field, allowed in ENUM_FIELDS.items()
-        if row[field] not in allowed
+        if isinstance(row.get(field), str) and row[field] not in allowed
     ]
     if "effort_days" in row and not _is_non_negative_number(row["effort_days"]):
         problems.append(f"effort_days must be a finite non-negative number, got {row['effort_days']!r}")

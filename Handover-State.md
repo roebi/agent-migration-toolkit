@@ -16,10 +16,10 @@ results:
     output: architecture.md - 5 components; OQ-1 resolved (option a), OQ-2 open (GitHub remote/PyPI setup, blocks only R-DEPLOY-002/003 verification); approved by roebi 2026-11-08 (input: input/multi-repo-architecture.md)
   - phase: implement
     status: done
-    output: all 43 requirements (incl. R-DOC added after review 1) + NFR-06 implemented test-first; 183 tests passed + 5 skipped (install commands in docs), 100% coverage, ruff/bandit/semgrep clean; CI + release workflows and container written but not yet run (OQ-2, review F-10)
+    output: all 43 requirements (incl. R-DOC added after review 1) + NFR-06 implemented test-first; 185 tests passed + 5 skipped (install commands in docs), 100% coverage, ruff/bandit/semgrep clean; CI + release workflows and container written but not yet run (OQ-2, review F-10)
   - phase: review
     status: done
-    output: review-checklist.md - review 2 passed 2026-11-08 - 0 critical, 0 major; F-01..F-06, F-08, F-09 fixed; F-07 accepted; F-10 (CI/container never run) to verify on first push
+    output: review-checklist.md - review 2 passed 2026-11-08 - 0 critical, 0 major; F-01..F-06, F-08, F-09, F-11, F-12 fixed; F-07 accepted; F-10 container verified by roebi, CI to verify on first push
   - phase: release
     status: pending
     output: tagged release + changelog

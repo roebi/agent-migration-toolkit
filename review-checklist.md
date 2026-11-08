@@ -125,7 +125,12 @@ All tests pass (183 passed, 5 skipped after review 2).
     and depends_on checks, so docs/examples/broken-table.toml reports
     only the missing fields, not `interface_type = "carrier_pigeon"`;
     docs/usage.md says "every problem at once" - schema.py `_row_problems`
-    - minor - found in the container run 2026-11-08, open
+    - minor - found in the container run 2026-11-08 - FIXED (checks run
+    on all present fields; usage guide error example updated)
+12. F-12 podman_run.sh mounted src/, tests/, schema/ with `:Z` (private
+    SELinux label); the first container run relabeled them so the dev
+    container lost access - podman_run.sh - minor - FIXED (`:z`, shared
+    label; labels restored by roebi with chcon on the host)
 
 ## Fix Log
 
@@ -134,6 +139,7 @@ All tests pass (183 passed, 5 skipped after review 2).
 | 2026-11-08 | F-01, F-02, F-03 | ab479ab | 8 new tests, 131 passing, coverage 100% |
 | 2026-11-08 | F-04, F-06, F-08 (R-DOC) | ca7aa59..0c5c140 | README, usage guide, examples, CHANGELOG, metadata; 178 passing |
 | 2026-11-08 | F-05, F-09 | 5eacdf6 | 5 new tests, 183 passing, coverage 100% |
+| 2026-11-08 | F-11, F-12 | (this commit) | 2 new tests, 185 passing, coverage 100% |
 
 ## Result
 
@@ -144,5 +150,5 @@ Review 2:
 ```yaml
 phase: review
 status: done
-output: review-checklist.md - 0 critical, 0 major, 3 minor open (F-07 accepted, F-10 verify CI on first push, F-11 partial row validation)
+output: review-checklist.md - 0 critical, 0 major, 2 minor open (F-07 accepted, F-10 verify CI on first push)
 ```

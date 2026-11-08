@@ -142,3 +142,19 @@ def test_validate_table_reports_non_string_required_field(row):
 @pytest.mark.parametrize("effort", [float("inf"), float("nan")])
 def test_validate_table_rejects_non_finite_effort_days(row, effort):
     assert len(validate_table([row(effort_days=effort)])) == 1
+
+
+def test_validate_table_reports_missing_fields_and_other_problems_of_same_row(row):
+    bad = row(interface_type="carrier_pigeon", effort_days=-1)
+    del bad["automation_grade"]
+    errors = validate_table([bad])
+    assert len(errors) == 3
+    assert any("missing fields ['automation_grade']" in e for e in errors)
+    assert any("invalid interface_type 'carrier_pigeon'" in e for e in errors)
+    assert any("effort_days" in e for e in errors)
+
+
+def test_validate_table_does_not_report_enum_twice_for_non_string_value(row):
+    errors = validate_table([row(interface_type=5)])
+    assert len(errors) == 1
+    assert "fields must be strings: ['interface_type']" in errors[0]
