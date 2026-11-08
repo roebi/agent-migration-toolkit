@@ -52,3 +52,7 @@ def test_validate_table_reports_invalid_interface_type_with_row(row):
 @pytest.mark.parametrize("itype", ["openapi", "file", "manual", "none"])
 def test_validate_table_accepts_valid_interface_types(row, itype):
     assert validate_table([row(interface_type=itype)]) == []
+
+
+def test_validate_table_accepts_optional_free_text_fields(row):
+    assert validate_table([row(input_artifact="usage log", notes="sent by email")]) == []
