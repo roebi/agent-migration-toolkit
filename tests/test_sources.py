@@ -130,3 +130,12 @@ def test_load_all_reports_url_error_caused_by_timeout_as_timeout(tmp_path):
 
     [loaded] = load_all([Source("Finance/Billing", url=RAW)], fetcher=fetcher, base_dir=tmp_path)
     assert loaded.error == "timeout after 10.0 s"
+
+
+def test_load_all_rejects_table_of_other_department(tmp_path):
+    (tmp_path / "legal.toml").write_text(_table(department="Product/QA"), encoding="utf-8")
+    [loaded] = load_all(
+        [Source("Legal/Compliance", path="legal.toml")], fetcher=_no_network, base_dir=tmp_path
+    )
+    assert loaded.rows is None
+    assert "Product/QA" in loaded.error and "Legal/Compliance" in loaded.error

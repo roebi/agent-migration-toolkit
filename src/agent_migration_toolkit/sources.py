@@ -77,6 +77,12 @@ def _load_one(source: Source, fetcher: Fetcher, base_dir: Path, timeout: float) 
         return Loaded(source.department, error=f"fetch failed: {exc.reason}")
     except (OSError, UnicodeDecodeError, ValidationError) as exc:
         return Loaded(source.department, error=str(exc))
+    foreign = sorted({row["department"] for row in rows} - {source.department})
+    if foreign:
+        return Loaded(
+            source.department,
+            error=f"table contains department(s) {foreign}, expected {source.department!r}",
+        )
     return Loaded(source.department, rows=rows)
 
 
