@@ -31,3 +31,7 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
