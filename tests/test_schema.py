@@ -68,3 +68,30 @@ def test_validate_table_rejects_negative_or_non_numeric_effort_days(row, effort)
     errors = validate_table([row(effort_days=effort)])
     assert len(errors) == 1
     assert "effort_days" in errors[0]
+
+
+def test_validate_table_accepts_depends_on_within_same_department(row):
+    rows = [row(sub_process="A"), row(sub_process="B", depends_on=["A"])]
+    assert validate_table(rows) == []
+
+
+def test_validate_table_rejects_unknown_depends_on_name(row):
+    errors = validate_table([row(sub_process="B", depends_on=["Ghost"])])
+    assert len(errors) == 1
+    assert "depends_on" in errors[0] and "'Ghost'" in errors[0]
+
+
+def test_validate_table_rejects_depends_on_from_other_department(row):
+    rows = [
+        row(department="Legal/Compliance", sub_process="A"),
+        row(department="Finance/Billing", sub_process="B", depends_on=["A"]),
+    ]
+    errors = validate_table(rows)
+    assert len(errors) == 1
+    assert "'A'" in errors[0]
+
+
+def test_validate_table_rejects_depends_on_that_is_not_a_list_of_strings(row):
+    errors = validate_table([row(depends_on="A")])
+    assert len(errors) == 1
+    assert "depends_on" in errors[0]

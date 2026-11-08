@@ -43,6 +43,9 @@ def _label(index: int, row: dict[str, Any]) -> str:
 def validate_table(rows: list[dict[str, Any]]) -> list[str]:
     """Return every contract violation in the table, one message per problem."""
     errors: list[str] = []
+    names_by_department: dict[Any, set[Any]] = {}
+    for row in rows:
+        names_by_department.setdefault(row.get("department"), set()).add(row.get("sub_process"))
     for index, row in enumerate(rows):
         missing = [field for field in REQUIRED_FIELDS if field not in row]
         if missing:
@@ -56,7 +59,23 @@ def validate_table(rows: list[dict[str, Any]]) -> list[str]:
                 f"{_label(index, row)}: effort_days must be a non-negative number,"
                 f" got {row['effort_days']!r}"
             )
+        if "depends_on" in row:
+            known = names_by_department[row["department"]]
+            errors.extend(
+                f"{_label(index, row)}: {problem}"
+                for problem in _depends_on_problems(row["depends_on"], known)
+            )
     return errors
+
+
+def _depends_on_problems(depends_on: Any, known: set[Any]) -> list[str]:
+    if not isinstance(depends_on, list) or not all(isinstance(n, str) for n in depends_on):
+        return [f"depends_on must be a list of sub_process names, got {depends_on!r}"]
+    return [
+        f"depends_on {name!r} is not a sub_process of the same department"
+        for name in depends_on
+        if name not in known
+    ]
 
 
 def _is_non_negative_number(value: Any) -> bool:
