@@ -52,9 +52,21 @@ def _is_allowed_url(url: Any) -> bool:
     return parts.scheme == "https" and parts.hostname == ALLOWED_HOST
 
 
+class _SameHostRedirect(urllib.request.HTTPRedirectHandler):
+    """Follow redirects only when they stay on the allowed https host (R-SRC-003)."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not _is_allowed_url(newurl):
+            raise URLError(f"refused redirect to {newurl}")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_OPENER = urllib.request.build_opener(_SameHostRedirect)
+
+
 def urllib_fetcher(url: str, timeout: float) -> str:
     """Fetch a URL as UTF-8 text. Callers pass only urls checked by _is_allowed_url."""
-    with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310
+    with _OPENER.open(url, timeout=timeout) as response:  # nosec B310
         return response.read().decode("utf-8")
 
 

@@ -137,3 +137,8 @@ def test_validate_table_reports_non_string_required_field(row):
     errors = validate_table([row(department=["Finance"])])
     assert len(errors) == 1
     assert "department" in errors[0] and "string" in errors[0]
+
+
+@pytest.mark.parametrize("effort", [float("inf"), float("nan")])
+def test_validate_table_rejects_non_finite_effort_days(row, effort):
+    assert len(validate_table([row(effort_days=effort)])) == 1

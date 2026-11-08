@@ -1,4 +1,5 @@
 import io
+import urllib.request
 from urllib.error import URLError
 
 import pytest
@@ -148,7 +149,7 @@ def test_urllib_fetcher_returns_decoded_body_and_passes_timeout(monkeypatch):
         seen["args"] = (url, timeout)
         return io.BytesIO("department = \"Ä\"".encode())
 
-    monkeypatch.setattr(sources.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(sources._OPENER, "open", fake_urlopen)
     assert sources.urllib_fetcher(RAW, 2.0) == 'department = "Ä"'
     assert seen["args"] == (RAW, 2.0)
 
@@ -156,3 +157,16 @@ def test_urllib_fetcher_returns_decoded_body_and_passes_timeout(monkeypatch):
 def test_parse_sources_rejects_non_string_url():
     with pytest.raises(ValidationError, match="raw.githubusercontent.com"):
         parse_sources('[[department]]\nname = "D"\nurl = 5\n')
+
+
+def test_redirect_to_other_host_is_refused():
+    handler = sources._SameHostRedirect()
+    with pytest.raises(URLError, match="redirect"):
+        handler.redirect_request(None, None, 302, "Found", {}, "https://evil.example/t.toml")
+
+
+def test_redirect_within_allowed_host_is_followed():
+    handler = sources._SameHostRedirect()
+    request = urllib.request.Request(RAW)
+    new = handler.redirect_request(request, None, 301, "Moved", {}, RAW + "?v=2")
+    assert new.full_url == RAW + "?v=2"

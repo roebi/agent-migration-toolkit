@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from pathlib import Path
 from typing import Any
@@ -50,7 +51,7 @@ def timeline_main(argv: list[str] | None = None, fetcher: Fetcher = urllib_fetch
     _add_output(parser)
     parser.add_argument(
         "--timeout",
-        type=float,
+        type=_positive_seconds,
         default=DEFAULT_TIMEOUT,
         help=f"seconds per fetch (default: {DEFAULT_TIMEOUT})",
     )
@@ -69,6 +70,13 @@ def timeline_main(argv: list[str] | None = None, fetcher: Fetcher = urllib_fetch
     for failure in timeline["failure"]:
         sys.stderr.write(f"warning: {failure['department']}: {failure['reason']}\n")
     return EXIT_PARTIAL if timeline["failure"] else 0
+
+
+def _positive_seconds(text: str) -> float:
+    value = float(text)
+    if not math.isfinite(value) or value <= 0:
+        raise argparse.ArgumentTypeError(f"must be a positive number of seconds, got {text!r}")
+    return value
 
 
 def _reasons(timeline: dict[str, Any]) -> str:

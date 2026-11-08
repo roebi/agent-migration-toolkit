@@ -146,3 +146,12 @@ def test_timeline_main_invalid_source_list_exits_1(tmp_path, capsys, content):
     captured = capsys.readouterr()
     assert captured.out == ""
     assert captured.err.startswith("error: ") and captured.err.count("\n") == 1
+
+
+@pytest.mark.parametrize("timeout", ["0", "-1", "nan", "abc"])
+def test_timeline_main_rejects_non_positive_timeout(tmp_path, capsys, timeout):
+    sources = _sources(tmp_path, f'name = "Legal/Compliance"\nurl = "{RAW}"')
+    with pytest.raises(SystemExit) as excinfo:
+        timeline_main([str(sources), "--timeout", timeout], fetcher=_fetch_legal)
+    assert excinfo.value.code == 2
+    assert "--timeout" in capsys.readouterr().err

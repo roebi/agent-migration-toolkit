@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import tomllib
 from typing import Any
 
@@ -81,7 +82,7 @@ def _row_problems(row: dict[str, Any], known: set[str]) -> list[str]:
         if row[field] not in allowed
     ]
     if "effort_days" in row and not _is_non_negative_number(row["effort_days"]):
-        problems.append(f"effort_days must be a non-negative number, got {row['effort_days']!r}")
+        problems.append(f"effort_days must be a finite non-negative number, got {row['effort_days']!r}")
     if "depends_on" in row:
         problems += _depends_on_problems(row["depends_on"], known)
     return problems
@@ -98,7 +99,9 @@ def _depends_on_problems(depends_on: Any, known: set[str]) -> list[str]:
 
 
 def _is_non_negative_number(value: Any) -> bool:
-    return isinstance(value, int | float) and not isinstance(value, bool) and value >= 0
+    if not isinstance(value, int | float) or isinstance(value, bool):
+        return False
+    return math.isfinite(value) and value >= 0
 
 
 def load_table(text: str) -> list[dict[str, Any]]:
