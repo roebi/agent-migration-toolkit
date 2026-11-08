@@ -1,19 +1,25 @@
 # process-table.schema.toml
 # One [[sub_process]] table per sub-process. This is the shared data
-# contract that gap_analysis_creator.py and critical_path_timeline.py
-# both read.
+# contract that gap-analysis-creator and critical-path-timeline both
+# read. Copy this file as the start of a department's process-table.toml.
 #
-# Required fields per entry:
-#   department:        string  - one of the 6 department names
-#   process:            string  - the parent process name
-#   sub_process:         string  - the specific sub-process being described
-#   automation_grade:    enum    - "full" | "partial" | "manual"
-#   output_artifact:      string  - what this sub-process produces
-#   interface_type:       enum    - "openapi" | "file" | "manual" | "none"
+# Required fields per entry (all strings):
+#   department:        one of the 6 department names
+#   process:           the parent process name
+#   sub_process:       the specific sub-process being described;
+#                      unique within the department
+#   automation_grade:  "full" | "partial" | "manual"
+#   output_artifact:   what this sub-process produces
+#   interface_type:    "openapi" | "file" | "manual" | "none"
 #
 # Optional fields:
-#   input_artifact:       string  - what this sub-process consumes
-#   notes:                string  - free text context from the collection meeting
+#   input_artifact:    string - what this sub-process consumes
+#   notes:             string - free text context from the collection meeting
+#   effort_days:       number >= 0 - estimated working days to close the gap
+#                      (used by critical-path-timeline; gaps without it are
+#                      listed as unestimated)
+#   depends_on:        list of strings - sub_process names of the SAME
+#                      department that must be done first
 #
 # interface_type meaning:
 #   openapi - already a clean machine contract, no gap
@@ -24,9 +30,20 @@
 [[sub_process]]
 department = "Finance/Billing"
 process = "Invoice run"
+sub_process = "Collect usage log"
+automation_grade = "full"
+output_artifact = "usage log"
+interface_type = "file"
+effort_days = 3
+
+[[sub_process]]
+department = "Finance/Billing"
+process = "Invoice run"
 sub_process = "Match usage to contract"
 automation_grade = "manual"
 input_artifact = "usage log"
 output_artifact = "match report (spreadsheet)"
 interface_type = "manual"
 notes = "currently sent as an email attachment"
+effort_days = 10
+depends_on = ["Collect usage log"]

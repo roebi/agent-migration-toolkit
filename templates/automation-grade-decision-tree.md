@@ -12,10 +12,9 @@ defined output artifact.
 
 2. Does the system already have an API?
    - Yes -> call it directly, no bridge needed.
-   - No -> needs an OpenAPI bridge wrap (see
-     docs/multi-repo-architecture.md and the fx-app-control-orchestrator
-     / transparent-openapi-mcp bridge patterns) before the script/tool
-     can call it.
+   - No -> needs an OpenAPI bridge wrap (see the
+     fx-app-control-orchestrator / transparent-openapi-mcp bridge
+     patterns) before the script/tool can call it.
 
 3. Does this sub-process touch customer or license data?
    - Yes -> stays under full R-CTRL gating regardless of how simple
