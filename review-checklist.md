@@ -61,7 +61,7 @@ All tests pass (183 passed, 5 skipped after review 2).
 | R-DOC-004 | `test_changelog_*` | yes | Keep a Changelog 1.1.0 structure |
 | R-DOC-005 | `test_metadata_*` | yes | urls, license, classifiers, keywords |
 | R-DEPLOY-005 | test_workflows.py `test_ci_can_be_called_as_reusable_workflow`, `test_release_publishes_only_after_ci_gates`, `test_no_gate_or_release_step_may_fail_silently` | yes | CI run #5 (42489751733) on 4fdc0ee green with the new `workflow_call` trigger; release path verified at the v0.1.1 release (F-16) |
-| R-DEPLOY-006 | test_workflows.py `test_release_publishes_only_when_tag_matches_package_version` | yes | check unchanged from v0.1.0, now its own job `check-tag` |
+| R-DEPLOY-006 | test_workflows.py `test_release_publishes_only_when_tag_matches_package_version` | yes | check unchanged from v0.1.0, now its own job `check-tag`; passed in release run #2 for v0.1.1 |
 | NFR-06 | `test_build_timeline_six_departments_of_200_rows_under_5_seconds` | yes | ~0.01 s |
 
 ## Architecture Compliance
@@ -150,7 +150,9 @@ All tests pass (183 passed, 5 skipped after review 2).
     build -> publish) has not run on GitHub yet; the wrong-tag path is
     covered only by the structure test - .github/workflows/release.yml
     - minor - verify with the v0.1.1 release run; actionlint could not
-    run in the dev container (download not permitted)
+    run in the dev container (download not permitted) - VERIFIED
+    2026-11-08: release run #2 (42490212297) green, jobs ran in the
+    designed order (check-tag + gates -> build -> publish)
 
 ## Fix Log
 

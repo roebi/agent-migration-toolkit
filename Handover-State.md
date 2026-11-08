@@ -39,11 +39,17 @@ iteration_2:
     status: done
     output: review 3 - 0 critical, 0 major; F-13 fixed (continue-on-error guard); F-14 accepted (CI runs twice per release); F-15 changelog entry in release; F-16 verify release job graph at v0.1.1; CI run #5 (42489751733) green
   - phase: release
-    status: in_progress
-    output: v0.1.1 prepared (pyproject, uv.lock, CHANGELOG; patch, not minor - feat commits touch only CI/release workflows, package unchanged); waiting for roebi to push and publish GitHub release v0.1.1 in the web GUI, then verify release.yml run (F-16) and PyPI
+    status: done
+    output: v0.1.1 released 2026-11-08 - GitHub release + tag v0.1.1 on 200dfb5 (created by roebi in the web GUI); release.yml run #2 (42490212297) green - check-tag + gates (6 test jobs + security) -> build -> publish, F-16 verified; on PyPI with provenance; install from PyPI verified (version 0.1.1, both CLIs on docs/examples, exit codes 0/0/2/1); patch, not minor - feat commits touch only CI/release workflows
+exit_condition_met_iteration_2: true
 ```
 
-## Open items after v0.1.0
+## Open items after v0.1.1
+
+- Branch protection on `main` (required CI checks before merge): GitHub
+  setting for roebi in the web GUI, out of scope of the repo.
+- README now shows `uv tool install` (Unreleased in CHANGELOG); reaches
+  the PyPI page with the next release.
 
 - Decide NFR-02 scope: keep native Windows/macOS in CI, or Linux only
   (Windows via WSL/podman) - requirement change, next iteration.
