@@ -6,16 +6,16 @@ goal: >-
   Shared hub toolkit for the agent-migration program - process-table
   schema, templates, gap analysis and a cross-department critical path
   timeline - published so department repos can pip install it.
-current_phase: design
+current_phase: implement
 results:
   - phase: requirements
     status: done
     output: requirements.md - 6 groups, 38 requirements, 8 NFRs; review passed, approved by roebi 2026-11-08 (input: input/r-proc-requirements.md, input/glossary.md, input/red-line.md, input/Handover-State-legacy.md)
   - phase: design
-    status: in_progress
-    output: architecture.md draft - 5 components, 2 open questions (OQ-1 unestimated predecessor, OQ-2 GitHub remote/PyPI setup); awaiting roebi approval (input: input/multi-repo-architecture.md)
+    status: done
+    output: architecture.md - 5 components; OQ-1 resolved (option a), OQ-2 open (GitHub remote/PyPI setup, blocks only R-DEPLOY-002/003 verification); approved by roebi 2026-11-08 (input: input/multi-repo-architecture.md)
   - phase: implement
-    status: pending
+    status: in_progress
     output: TDD over existing src/ + new requirements
   - phase: review
     status: pending

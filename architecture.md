@@ -105,8 +105,9 @@ tests move into `test_schema.py` / `test_gap.py` / `test_cli.py`.
     and adds the `program` summary (007).
 - Scheduling rules (pure, from R-TIME):
   - Tasks = gap rows with `effort_days`. Predecessors that are not
-    tasks (openapi rows = done, R-TIME-002; unestimated rows, see Open
-    Questions) are ignored.
+    tasks (openapi rows = done, R-TIME-002; unestimated rows) are
+    ignored for scheduling. A task with unestimated gap predecessors
+    lists them in `waits_on_unestimated` (OQ-1, decided option a).
   - Forward pass: `ES = max(EF of task predecessors, default 0)`,
     `EF = ES + effort_days`. Department length `L = max(EF, default 0)`.
   - Backward pass: `LF = min(LS of task successors, default L)`,
@@ -173,6 +174,7 @@ earliest_finish = 10.0
 slack_days = 0.0
 critical = true
 block = "quick_ramp"
+waits_on_unestimated = []
 
 [[department.unestimated]]
 process = "..."
@@ -240,12 +242,10 @@ reason = "timeout after 10.0 s"
 
 ## Open Questions
 
-- OQ-1: A scheduled task that depends on an *unestimated* gap row - the
-  design ignores that edge (like a done predecessor), so the task may
-  start too early. Alternative: also mark the dependent task as
-  unestimated. Proposed: keep ignoring, and add the field
-  `waits_on_unestimated = ["<name>"]` to the task so it stays visible.
-  Needs roebi's decision; the second option would change R-TIME-003.
+- OQ-1 (resolved 2026-11-08, option a): a task depending on an
+  unestimated gap row is still scheduled; the edge is ignored and the
+  task lists the predecessor in `waits_on_unestimated`. R-TIME-003
+  unchanged.
 - OQ-2: GitHub remote and PyPI Trusted Publisher are not set up yet (no
   remote configured, no `gh` in the dev container). Needed before
   R-DEPLOY-002/003 can be verified; implementation can proceed without.
