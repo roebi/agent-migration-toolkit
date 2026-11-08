@@ -59,3 +59,11 @@ def test_release_publishes_only_when_tag_matches_package_version():
     assert "uv version --short" in check
     assert '"v${version}" = "${GITHUB_REF_NAME}"' in check
     assert "check-tag" in upstream(jobs, "publish")
+
+
+def test_release_grants_oidc_token_only_to_publish():
+    workflow = load("release.yml")
+    assert workflow["permissions"] == {"contents": "read"}
+    for name, job in workflow["jobs"].items():
+        has_token = job.get("permissions", {}).get("id-token") == "write"
+        assert has_token == (name == "publish")

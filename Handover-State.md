@@ -6,7 +6,7 @@ goal: >-
   Shared hub toolkit for the agent-migration program - process-table
   schema, templates, gap analysis and a cross-department critical path
   timeline - published so department repos can pip install it.
-current_phase: implement
+current_phase: review
 iteration: 2 (release gate - R-DEPLOY-005/006, target v0.1.1)
 results:
   - phase: requirements
@@ -33,7 +33,10 @@ iteration_2:
     status: done
     output: architecture.md section "Release Gate" - release.yml calls ci.yml (workflow_call), jobs check-tag + gates -> build -> publish; test_workflows.py with PyYAML (dev only); OQ-2 resolved, OQ-3 full matrix; approved by roebi 2026-11-08
   - phase: implement
-    status: in_progress
+    status: done
+    output: R-DEPLOY-005/006 test-first in tests/test_workflows.py (5 tests); ci.yml workflow_call, release.yml check-tag + gates -> build -> publish, build no longer reruns pytest; 190 passed + 5 skipped, 100% coverage, ruff clean; workflows not yet run on GitHub (verify on push + v0.1.1 release)
+  - phase: review
+    status: pending
 ```
 
 ## Open items after v0.1.0
@@ -60,6 +63,7 @@ entry_point: A (requirements.md) + B (existing gap_analysis_creator.py)
 language: Python 3.11+
 test_framework: pytest + pytest-cov
 order: R-SCHEMA, R-SRC, R-GAP, R-TPL, R-TIME, CLI (R-GAP-004/005, R-TIME-009/010), R-DEPLOY
+iteration_2_done: [R-DEPLOY-002 guard, R-DEPLOY-005, R-DEPLOY-006, permissions guard]
 done: [R-SCHEMA-001..009, R-SRC-001..007, R-GAP-001..005, R-TPL-001..003, R-TIME-001..010, R-DOC-001..005, R-DEPLOY-001..004, NFR-06]
 current: none
 last_green_commit: 5eacdf6

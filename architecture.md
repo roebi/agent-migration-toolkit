@@ -303,7 +303,8 @@ ci.yml has the `workflow_call` trigger and steps running pytest --cov,
 ruff, bandit and semgrep; release.yml's `gates` job uses ci.yml;
 `check-tag` compares the tag with `uv version --short`; `publish`
 depends on `build`, and `build` on both `check-tag` and `gates`
-(transitively, publish cannot run without the gates). The real proof is
+(transitively, publish cannot run without the gates). A guard test
+also checks that only `publish` gets `id-token: write`. The real proof is
 the v0.1.1 release run on GitHub.
 
 ## Open Questions
