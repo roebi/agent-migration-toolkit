@@ -16,7 +16,7 @@ results:
     output: architecture.md - 5 components; OQ-1 resolved (option a), OQ-2 open (GitHub remote/PyPI setup, blocks only R-DEPLOY-002/003 verification); approved by roebi 2026-11-08 (input: input/multi-repo-architecture.md)
   - phase: implement
     status: done
-    output: all 38 requirements + NFR-06 implemented test-first; 123 tests, 100% coverage, ruff/bandit/semgrep clean; CI + release workflows and container written but not yet run (OQ-2)
+    output: all 43 requirements (incl. R-DOC added after review 1) + NFR-06 implemented test-first; 183 tests passed + 5 skipped (install commands in docs), 100% coverage, ruff/bandit/semgrep clean; CI + release workflows and container written but not yet run (OQ-2, review F-10)
   - phase: review
     status: done
     output: review-checklist.md - review 2 passed 2026-11-08 - 0 critical, 0 major; F-01..F-06, F-08, F-09 fixed; F-07 accepted; F-10 (CI/container never run) to verify on first push
@@ -49,8 +49,8 @@ entry_point: A (requirements.md) + B (existing gap_analysis_creator.py)
 language: Python 3.11+
 test_framework: pytest + pytest-cov
 order: R-SCHEMA, R-SRC, R-GAP, R-TPL, R-TIME, CLI (R-GAP-004/005, R-TIME-009/010), R-DEPLOY
-done: [R-SCHEMA-001..009, R-SRC-001..007, R-GAP-001..005, R-TPL-001..003, R-TIME-001..010, R-DEPLOY-001..004, NFR-06]
+done: [R-SCHEMA-001..009, R-SRC-001..007, R-GAP-001..005, R-TPL-001..003, R-TIME-001..010, R-DOC-001..005, R-DEPLOY-001..004, NFR-06]
 current: none
-last_green_commit: cc27e9b
+last_green_commit: 5eacdf6
 exit_condition_met: true
 ```
