@@ -17,7 +17,7 @@ def parse_table(text: str) -> list[dict[str, Any]]:
     except tomllib.TOMLDecodeError as exc:
         raise ValidationError(f"not valid TOML: {exc}") from exc
     rows = data.get("sub_process")
-    if not isinstance(rows, list):
+    if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
         raise ValidationError("process table must contain a [[sub_process]] array of tables")
     return rows
 
@@ -42,35 +42,34 @@ def _label(index: int, row: dict[str, Any]) -> str:
 
 def validate_table(rows: list[dict[str, Any]]) -> list[str]:
     """Return every contract violation in the table, one message per problem."""
-    errors: list[str] = []
     names_by_department: dict[Any, set[Any]] = {}
     for row in rows:
         names_by_department.setdefault(row.get("department"), set()).add(row.get("sub_process"))
+    errors: list[str] = []
     seen: set[tuple[Any, Any]] = set()
     for index, row in enumerate(rows):
         key = (row.get("department"), row.get("sub_process"))
-        if key in seen:
-            errors.append(f"{_label(index, row)}: duplicate department and sub_process")
+        problems = ["duplicate department and sub_process"] if key in seen else []
         seen.add(key)
-        missing = [field for field in REQUIRED_FIELDS if field not in row]
-        if missing:
-            errors.append(f"{_label(index, row)}: missing fields {missing}")
-            continue
-        for field, allowed in ENUM_FIELDS.items():
-            if row[field] not in allowed:
-                errors.append(f"{_label(index, row)}: invalid {field} {row[field]!r}")
-        if "effort_days" in row and not _is_non_negative_number(row["effort_days"]):
-            errors.append(
-                f"{_label(index, row)}: effort_days must be a non-negative number,"
-                f" got {row['effort_days']!r}"
-            )
-        if "depends_on" in row:
-            known = names_by_department[row["department"]]
-            errors.extend(
-                f"{_label(index, row)}: {problem}"
-                for problem in _depends_on_problems(row["depends_on"], known)
-            )
+        problems += _row_problems(row, names_by_department[row.get("department")])
+        errors.extend(f"{_label(index, row)}: {problem}" for problem in problems)
     return errors
+
+
+def _row_problems(row: dict[str, Any], known: set[Any]) -> list[str]:
+    missing = [field for field in REQUIRED_FIELDS if field not in row]
+    if missing:
+        return [f"missing fields {missing}"]
+    problems = [
+        f"invalid {field} {row[field]!r}"
+        for field, allowed in ENUM_FIELDS.items()
+        if row[field] not in allowed
+    ]
+    if "effort_days" in row and not _is_non_negative_number(row["effort_days"]):
+        problems.append(f"effort_days must be a non-negative number, got {row['effort_days']!r}")
+    if "depends_on" in row:
+        problems += _depends_on_problems(row["depends_on"], known)
+    return problems
 
 
 def _depends_on_problems(depends_on: Any, known: set[Any]) -> list[str]:

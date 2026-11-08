@@ -126,3 +126,8 @@ def test_load_table_raises_with_all_problems():
     with pytest.raises(ValidationError) as excinfo:
         load_table(text)
     assert str(excinfo.value).count("missing fields") == 2
+
+
+def test_parse_table_with_non_table_entries_raises():
+    with pytest.raises(ValidationError, match=r"\[\[sub_process\]\]"):
+        parse_table("sub_process = [1, 2]\n")
