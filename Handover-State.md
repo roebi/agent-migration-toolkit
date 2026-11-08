@@ -6,7 +6,8 @@ goal: >-
   Shared hub toolkit for the agent-migration program - process-table
   schema, templates, gap analysis and a cross-department critical path
   timeline - published so department repos can pip install it.
-current_phase: release
+current_phase: design
+iteration: 2 (release gate - R-DEPLOY-005/006, target v0.1.1)
 results:
   - phase: requirements
     status: done
@@ -23,7 +24,13 @@ results:
   - phase: release
     status: done
     output: v0.1.0 released 2026-11-08 - GitHub release + tag v0.1.0 on 0627ae3 (created by roebi in the web GUI); release.yml run 42488225444 green; published to https://pypi.org/project/agent-migration-toolkit/0.1.0/ via trusted publishing; install from PyPI verified (both CLIs on docs/examples)
-exit_condition_met: true
+exit_condition_met: true  # iteration 1
+iteration_2:
+  - phase: requirements
+    status: done
+    output: R-DEPLOY-005 (full gate set before publish), R-DEPLOY-006 (tag = version); branch protection added to out of scope; approved by roebi 2026-11-08
+  - phase: design
+    status: in_progress
 ```
 
 ## Open items after v0.1.0

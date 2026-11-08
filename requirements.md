@@ -248,6 +248,17 @@ R-DEPLOY-004: Build a container image that runs the test suite by
   default and either CLI when given its name.
   driver: usability (reproducible run without a local Python setup)
 
+R-DEPLOY-005: Run the full gate set of R-DEPLOY-002 (tests with
+  coverage, ruff lint, bandit and semgrep) on the released commit before
+  publishing, and publish nothing to PyPI if any gate fails.
+  driver: usability (v0.1.0 release workflow re-ran only pytest, so a
+  commit failing lint or the security scan could still be published)
+
+R-DEPLOY-006: Refuse to publish when the release tag does not equal
+  `v` + the package version.
+  driver: usability (records the existing check in release.yml as a
+  requirement so it is tested and not lost when the workflow changes)
+
 ## Non-Functional Requirements
 
 NFR-01: Testability - pytest, line coverage >= 80% over `src/`, network
@@ -285,6 +296,9 @@ NFR-08: Code style - ruff check passes with the project configuration.
 - Resource levelling or calendar dates; the timeline is in working days
   from day 0.
 - Implementing R-CTRL approval workflows (separate program track).
+- Branch protection on `main` (required status checks before merge);
+  it is a GitHub repository setting made by the owner in the web GUI,
+  not a deliverable of this repo.
 
 ## Requirements Review
 
@@ -300,3 +314,6 @@ NFR-08: Code style - ruff check passes with the project configuration.
 - [x] Reviewed by: Claude agent on 2026-11-08, approved by roebi on 2026-11-08
 - [x] R-DOC group (5 requirements, from review finding F-04) re-checked
       against the gates above and approved by roebi on 2026-11-08
+- [x] Iteration 2 (release gate): R-DEPLOY-005, R-DEPLOY-006 checked
+      against the per-requirement and cross-group gates by Claude agent
+      on 2026-11-08, approved by roebi on 2026-11-08
