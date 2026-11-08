@@ -226,4 +226,4 @@ NFR-08: Code style - ruff check passes with the project configuration.
       (none present)
 - [x] Compliance-driven requirements reference the law/regulation and
       deadline (none present; Red Line is internal governance, NFR-05)
-- [ ] Reviewed by: Claude agent on 2026-11-08 - awaiting approval by roebi
+- [x] Reviewed by: Claude agent on 2026-11-08, approved by roebi on 2026-11-08
