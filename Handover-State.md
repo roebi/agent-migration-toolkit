@@ -39,7 +39,8 @@ iteration_2:
     status: done
     output: review 3 - 0 critical, 0 major; F-13 fixed (continue-on-error guard); F-14 accepted (CI runs twice per release); F-15 changelog entry in release; F-16 verify release job graph at v0.1.1; CI run #5 (42489751733) green
   - phase: release
-    status: pending
+    status: in_progress
+    output: v0.1.1 prepared (pyproject, uv.lock, CHANGELOG; patch, not minor - feat commits touch only CI/release workflows, package unchanged); waiting for roebi to push and publish GitHub release v0.1.1 in the web GUI, then verify release.yml run (F-16) and PyPI
 ```
 
 ## Open items after v0.1.0

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-08
+
+The installed package behaves exactly as in 0.1.0; this release changes
+only how releases are checked before they reach PyPI.
+
+### Changed
+
+- The release workflow runs the full CI gate set (tests with coverage on
+  Linux, macOS and Windows, ruff, bandit and semgrep) on the released
+  commit and publishes nothing to PyPI if any gate fails. Before, it
+  re-ran only the tests.
+- The check that the release tag equals `v` + the package version runs
+  as its own job and stops the release early on a mismatch.
+
 ## [0.1.0] - 2026-11-08
 
 ### Added
@@ -33,5 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - URL sources are fetched only over HTTPS from
   `raw.githubusercontent.com`, including redirects.
 
-[unreleased]: https://github.com/roebi/agent-migration-toolkit/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/roebi/agent-migration-toolkit/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/roebi/agent-migration-toolkit/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/roebi/agent-migration-toolkit/releases/tag/v0.1.0
