@@ -6,9 +6,26 @@ license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "roebi" }]
 requires-python = ">=3.11"
+keywords = ["agent-migration", "process-table", "gap-analysis", "critical-path", "toml"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 dependencies = [
     "tomli-w>=1.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/roebi/agent-migration-toolkit"
+Repository = "https://github.com/roebi/agent-migration-toolkit"
+Changelog = "https://github.com/roebi/agent-migration-toolkit/blob/main/CHANGELOG.md"
+Issues = "https://github.com/roebi/agent-migration-toolkit/issues"
 
 [project.scripts]
 gap-analysis-creator = "agent_migration_toolkit.cli:gap_main"
