@@ -70,3 +70,26 @@ def test_load_all_reads_path_relative_to_base_dir(tmp_path):
     assert loaded.error is None
     assert loaded.department == "Legal/Compliance"
     assert loaded.rows[0]["sub_process"] == "Review contract"
+
+
+def test_load_all_fetches_url_with_timeout(tmp_path):
+    calls = []
+
+    def fetcher(url, timeout):
+        calls.append((url, timeout))
+        return _table(department="Finance/Billing")
+
+    [loaded] = load_all(
+        [Source("Finance/Billing", url=RAW)], fetcher=fetcher, base_dir=tmp_path, timeout=3.0
+    )
+    assert calls == [(RAW, 3.0)]
+    assert loaded.error is None and len(loaded.rows) == 1
+
+
+def test_load_all_reports_timeout_as_department_failure(tmp_path):
+    def fetcher(url, timeout):
+        raise TimeoutError("timed out")
+
+    [loaded] = load_all([Source("Finance/Billing", url=RAW)], fetcher=fetcher, base_dir=tmp_path)
+    assert loaded.rows is None
+    assert loaded.error == "timeout after 10.0 s"

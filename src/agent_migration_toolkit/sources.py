@@ -68,5 +68,14 @@ def load_all(
 
 
 def _load_one(source: Source, fetcher: Fetcher, base_dir: Path, timeout: float) -> Loaded:
-    text = (base_dir / source.path).read_text(encoding="utf-8")
+    try:
+        text = _read(source, fetcher, base_dir, timeout)
+    except TimeoutError:
+        return Loaded(source.department, error=f"timeout after {timeout} s")
     return Loaded(source.department, rows=load_table(text))
+
+
+def _read(source: Source, fetcher: Fetcher, base_dir: Path, timeout: float) -> str:
+    if source.url is not None:
+        return fetcher(source.url, timeout)
+    return (base_dir / str(source.path)).read_text(encoding="utf-8")
