@@ -18,8 +18,8 @@ results:
     status: done
     output: all 38 requirements + NFR-06 implemented test-first; 123 tests, 100% coverage, ruff/bandit/semgrep clean; CI + release workflows and container written but not yet run (OQ-2)
   - phase: review
-    status: in_progress
-    output: review-checklist.md
+    status: blocked
+    output: review-checklist.md - review 1 - 0 critical, 1 major open (F-04 no README/usage docs, needs R-DOC requirements), 4 minor; F-01..F-03 fixed in ab479ab
   - phase: release
     status: pending
     output: tagged release + changelog
