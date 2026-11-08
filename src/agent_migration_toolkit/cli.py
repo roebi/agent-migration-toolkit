@@ -11,6 +11,14 @@ import tomli_w
 
 from agent_migration_toolkit.gap import compute_gaps
 from agent_migration_toolkit.schema import ValidationError, load_table
+from agent_migration_toolkit.sources import (
+    DEFAULT_TIMEOUT,
+    Fetcher,
+    load_all,
+    parse_sources,
+    urllib_fetcher,
+)
+from agent_migration_toolkit.timeline import build_timeline
 
 USER_ERRORS = (ValidationError, OSError, UnicodeDecodeError)
 
@@ -28,6 +36,27 @@ def gap_main(argv: list[str] | None = None) -> int:
         _write({"gap": compute_gaps(rows)}, args.output)
     except USER_ERRORS as exc:
         return _fail(exc)
+    return 0
+
+
+def timeline_main(argv: list[str] | None = None, fetcher: Fetcher = urllib_fetcher) -> int:
+    """critical-path-timeline: source list -> program timeline (R-TIME-009)."""
+    parser = argparse.ArgumentParser(
+        prog="critical-path-timeline",
+        description="Build the critical path timeline across department process tables",
+    )
+    parser.add_argument("sources", type=Path, help="path to the department source list (TOML)")
+    _add_output(parser)
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_TIMEOUT,
+        help=f"seconds per fetch (default: {DEFAULT_TIMEOUT})",
+    )
+    args = parser.parse_args(argv)
+    sources = parse_sources(_read_text(args.sources))
+    loaded = load_all(sources, fetcher=fetcher, base_dir=args.sources.parent, timeout=args.timeout)
+    _write(build_timeline(loaded), args.output)
     return 0
 
 

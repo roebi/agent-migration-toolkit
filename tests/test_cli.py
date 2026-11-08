@@ -2,7 +2,7 @@ import tomllib
 
 import pytest
 
-from agent_migration_toolkit.cli import gap_main
+from agent_migration_toolkit.cli import gap_main, timeline_main
 
 TABLE = """
 [[sub_process]]
@@ -65,3 +65,45 @@ def test_gap_main_invalid_input_exits_1_with_one_line_error(tmp_path, capsys, co
     assert captured.err.startswith("error: ")
     assert captured.err.count("\n") == 1
     assert needle in captured.err
+
+
+RAW = "https://raw.githubusercontent.com/roebi/dept-legal/main/process-table.toml"
+LEGAL = TABLE.replace("Finance/Billing", "Legal/Compliance")
+
+
+def _sources(tmp_path, *entries):
+    (tmp_path / "finance.toml").write_text(TABLE, encoding="utf-8")
+    path = tmp_path / "sources.toml"
+    path.write_text("".join(f"[[department]]\n{e}\n" for e in entries), encoding="utf-8")
+    return path
+
+
+def _fetch_legal(url, timeout):
+    return LEGAL
+
+
+def test_timeline_main_all_departments_ok_exits_0(tmp_path, capsys):
+    sources = _sources(
+        tmp_path,
+        'name = "Finance/Billing"\npath = "finance.toml"',
+        f'name = "Legal/Compliance"\nurl = "{RAW}"',
+    )
+    assert timeline_main([str(sources)], fetcher=_fetch_legal) == 0
+    result = tomllib.loads(capsys.readouterr().out)
+    assert [d["name"] for d in result["department"]] == ["Finance/Billing", "Legal/Compliance"]
+    assert "program" in result
+
+
+def test_timeline_main_writes_output_file_and_passes_timeout(tmp_path, capsys):
+    seen = []
+
+    def fetcher(url, timeout):
+        seen.append(timeout)
+        return LEGAL
+
+    sources = _sources(tmp_path, f'name = "Legal/Compliance"\nurl = "{RAW}"')
+    out = tmp_path / "timeline.toml"
+    assert timeline_main([str(sources), "-o", str(out), "--timeout", "2.5"], fetcher=fetcher) == 0
+    assert seen == [2.5]
+    assert capsys.readouterr().out == ""
+    assert tomllib.loads(out.read_text(encoding="utf-8"))["department"]
