@@ -6,7 +6,7 @@ goal: >-
   Shared hub toolkit for the agent-migration program - process-table
   schema, templates, gap analysis and a cross-department critical path
   timeline - published so department repos can pip install it.
-current_phase: design
+current_phase: implement
 iteration: 2 (release gate - R-DEPLOY-005/006, target v0.1.1)
 results:
   - phase: requirements
@@ -30,6 +30,9 @@ iteration_2:
     status: done
     output: R-DEPLOY-005 (full gate set before publish), R-DEPLOY-006 (tag = version); branch protection added to out of scope; approved by roebi 2026-11-08
   - phase: design
+    status: done
+    output: architecture.md section "Release Gate" - release.yml calls ci.yml (workflow_call), jobs check-tag + gates -> build -> publish; test_workflows.py with PyYAML (dev only); OQ-2 resolved, OQ-3 full matrix; approved by roebi 2026-11-08
+  - phase: implement
     status: in_progress
 ```
 

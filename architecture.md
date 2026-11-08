@@ -24,8 +24,8 @@ agent-migration-toolkit/
 │   entrypoint.sh, podman_build.sh,
 │   podman_run.sh                     R-DEPLOY-004
 ├── .github/workflows/
-│   ├── ci.yml                        R-DEPLOY-002
-│   └── release.yml                   R-DEPLOY-003
+│   ├── ci.yml                        R-DEPLOY-002 (also callable, R-DEPLOY-005)
+│   └── release.yml                   R-DEPLOY-003, -005, -006
 ├── README.md                         R-DOC-001 (also PyPI description)
 ├── CHANGELOG.md                      R-DOC-004 (Keep a Changelog 1.1.0)
 ├── docs/
@@ -49,6 +49,7 @@ agent-migration-toolkit/
     ├── test_timeline.py              incl. NFR-06 performance test
     ├── test_cli.py
     ├── test_package.py               R-DEPLOY-001 (version, console scripts)
+    ├── test_workflows.py             R-DEPLOY-002/005/006 (workflow structure)
     ├── test_templates.py             R-TPL-001..003, R-SCHEMA-009
     └── test_docs.py                  R-DOC-001..005
 ```
@@ -209,6 +210,8 @@ reason = "timeout after 10.0 s"
 | CI | GitHub Actions, matrix Python 3.11 + 3.13 on ubuntu, macos, windows | NFR-02, framework default 3.13 |
 | Publish | PyPI Trusted Publishing (OIDC) when a GitHub release with tag `vX.Y.Z` is published | R-DEPLOY-003; name `agent-migration-toolkit` is free on PyPI (checked 2026-11-08) |
 | Container | python:3.12-slim + uv | R-DEPLOY-004, already scaffolded |
+| Release gate | release.yml calls ci.yml as a reusable workflow (`workflow_call`) | R-DEPLOY-005; one definition of the gates, so CI and release cannot drift apart |
+| Workflow tests | PyYAML as a dev-only dependency | test_workflows.py parses the workflow files; NFR-07 limits runtime deps only |
 
 ## Testability Constraints
 
@@ -252,7 +255,8 @@ department on stderr when it exits with 2.
 | R-TIME-001..008 | timeline.py (+ sources.py for 001) | test_timeline.py |
 | R-TIME-009/010 | cli.py | test_cli.py |
 | R-DEPLOY-001 | pyproject.toml | test_package.py, `uv build` |
-| R-DEPLOY-002..004 | workflows, Dockerfile | CI run, container build (not yet run, OQ-2) |
+| R-DEPLOY-002..004 | workflows, Dockerfile | CI run 42487302254, release run 42488225444, container verified by roebi |
+| R-DEPLOY-005/006 | ci.yml, release.yml | test_workflows.py + the v0.1.1 release run |
 | R-DOC-001..005 | README.md, docs/, CHANGELOG.md, pyproject.toml | test_docs.py |
 | NFR-06 | timeline.py | test_timeline.py (6 x 200 rows < 5 s) |
 
@@ -267,12 +271,50 @@ subprocess and no network are needed: documented url sources are served
 by a fake fetcher returning `docs/examples/` files. Install commands
 (`pip`, `uv add`) are skipped.
 
+## Release Gate (iteration 2, R-DEPLOY-005/006)
+
+Job graph of `release.yml` (started by publishing a GitHub release):
+
+```
+check-tag ──┐
+            ├──> build ──> publish (environment pypi, id-token: write)
+gates ──────┘
+(uses: ./.github/workflows/ci.yml)
+```
+
+- `ci.yml` gets a second trigger `workflow_call:` next to push and
+  pull_request. Its jobs stay unchanged: the test matrix (pytest with
+  coverage gate + ruff) and the security job (bandit + semgrep).
+- `release.yml` job `gates` is `uses: ./.github/workflows/ci.yml`, so
+  the released commit runs exactly the CI gate set, full OS/Python
+  matrix included (OQ-3).
+- Job `check-tag` holds the existing tag = `v` + version check
+  (R-DEPLOY-006), moved out of `build` so it fails fast and runs in
+  parallel with the gates.
+- `build` needs `[check-tag, gates]` and no longer runs pytest itself
+  (the gates did); it only runs `uv build` and uploads `dist/`.
+- `publish` needs `build`, so it only runs after every gate passed.
+  Permissions stay minimal: top-level `contents: read`, `id-token:
+  write` only on `publish`.
+
+Testing: `test_workflows.py` loads both files with `yaml.safe_load`
+(PyYAML reads the `on` key as `True`; the test handles both) and asserts:
+ci.yml has the `workflow_call` trigger and steps running pytest --cov,
+ruff, bandit and semgrep; release.yml's `gates` job uses ci.yml;
+`check-tag` compares the tag with `uv version --short`; `publish`
+depends on `build`, and `build` on both `check-tag` and `gates`
+(transitively, publish cannot run without the gates). The real proof is
+the v0.1.1 release run on GitHub.
+
 ## Open Questions
 
 - OQ-1 (resolved 2026-11-08, option a): a task depending on an
   unestimated gap row is still scheduled; the edge is ignored and the
   task lists the predecessor in `waits_on_unestimated`. R-TIME-003
   unchanged.
-- OQ-2: GitHub remote and PyPI Trusted Publisher are not set up yet (no
-  remote configured, no `gh` in the dev container). Needed before
-  R-DEPLOY-002/003 can be verified; implementation can proceed without.
+- OQ-2 (resolved 2026-11-08): GitHub remote and PyPI Trusted Publisher
+  set up by roebi; CI and release runs green, v0.1.0 on PyPI.
+- OQ-3 (decided 2026-11-08 in design, iteration 2): the release gate
+  reuses the full CI matrix (Linux, macOS, Windows) rather than a
+  Linux-only subset. If NFR-02 is later narrowed to Linux, changing
+  ci.yml changes both CI and the release gate.
