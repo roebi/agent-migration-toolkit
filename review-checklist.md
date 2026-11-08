@@ -52,7 +52,7 @@ All tests pass (183 passed, 5 skipped after review 2).
 | R-TIME-009 | test_cli.py `test_timeline_main_all_*`, `*_writes_output_file_*` | yes | |
 | R-TIME-010 | `test_timeline_main_*exits_2*`, `*exits_1*`, `*invalid_source_list*` | yes | |
 | R-DEPLOY-001 | test_package.py, `uv build` (wheel holds both scripts) | yes | |
-| R-DEPLOY-002 | .github/workflows/ci.yml | not run | YAML valid; bandit + semgrep clean locally; needs GitHub remote (OQ-2) |
+| R-DEPLOY-002 | .github/workflows/ci.yml | yes | run 42487302254 on 76433b4: 6 test jobs (ubuntu, macos, windows x py3.11, py3.13) + security all green |
 | R-DEPLOY-003 | .github/workflows/release.yml | not run | needs GitHub remote + PyPI trusted publisher (OQ-2) |
 | R-DEPLOY-004 | Dockerfile, entrypoint.sh | yes | 2026-11-08 roebi on host: podman_build.sh ok; podman_run.sh -> 185 passed, 5 skipped (rerun after F-11/F-12 with :z mounts); both CLIs on docs/examples give the documented output and exit codes 0, 0, 2, 1 |
 | R-DOC-001 | test_docs.py `test_readme_*` | yes | README is the PyPI description; links absolute; twine check passes |
@@ -120,7 +120,8 @@ All tests pass (183 passed, 5 skipped after review 2).
     container - minor - verify on first push / before tagging; the
     release workflow re-runs the tests before publishing. 2026-11-08:
     container verified by roebi on host (build, test suite, both CLIs,
-    exit codes 0/2/1); CI and release still open
+    exit codes 0/2/1); CI green on GitHub (run 42487302254, all 7 jobs);
+    release workflow is verified by the v0.1.0 tag push
 11. F-11 a row with missing required fields skips its enum, effort_days
     and depends_on checks, so docs/examples/broken-table.toml reports
     only the missing fields, not `interface_type = "carrier_pigeon"`;
@@ -150,5 +151,5 @@ Review 2:
 ```yaml
 phase: review
 status: done
-output: review-checklist.md - 0 critical, 0 major, 2 minor open (F-07 accepted, F-10 verify CI on first push)
+output: review-checklist.md - 0 critical, 0 major, 1 minor open (F-07 accepted); F-10 CI verified, release workflow verified by the v0.1.0 tag push
 ```

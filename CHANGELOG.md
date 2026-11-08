@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-08
+
 ### Added
 
 - `gap-analysis-creator` command: reads a department process table and
@@ -31,4 +33,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - URL sources are fetched only over HTTPS from
   `raw.githubusercontent.com`, including redirects.
 
-[unreleased]: https://github.com/roebi/agent-migration-toolkit/commits/main
+[unreleased]: https://github.com/roebi/agent-migration-toolkit/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/roebi/agent-migration-toolkit/releases/tag/v0.1.0
