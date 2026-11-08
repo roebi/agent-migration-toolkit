@@ -1,0 +1,7 @@
+# Invalid on purpose: missing fields and an unknown interface_type.
+
+[[sub_process]]
+department = "Product/QA"
+process = "Release test"
+sub_process = "Run regression suite"
+interface_type = "carrier_pigeon"

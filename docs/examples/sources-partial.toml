@@ -1,0 +1,10 @@
+# Source list where one department cannot be loaded (file missing):
+# the timeline is still written, the exit code is 2.
+
+[[department]]
+name = "Finance/Billing"
+path = "finance-process-table.toml"
+
+[[department]]
+name = "Product/QA"
+path = "qa-process-table.toml"

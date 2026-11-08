@@ -1,0 +1,12 @@
+# Source list for critical-path-timeline: one [[department]] per
+# department repo. Use `path` for local files (relative to this file)
+# or `url` for a raw.githubusercontent.com file, e.g.
+#   url = "https://raw.githubusercontent.com/<owner>/<repo>/main/process-table.toml"
+
+[[department]]
+name = "Finance/Billing"
+path = "finance-process-table.toml"
+
+[[department]]
+name = "Legal/Compliance"
+path = "legal-process-table.toml"

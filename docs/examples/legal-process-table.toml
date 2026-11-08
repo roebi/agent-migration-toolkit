@@ -1,0 +1,21 @@
+# Example process table of the Legal/Compliance department.
+
+[[sub_process]]
+department = "Legal/Compliance"
+process = "Contract review"
+sub_process = "Receive contract draft"
+automation_grade = "manual"
+output_artifact = "contract draft (docx)"
+interface_type = "manual"
+effort_days = 2
+
+[[sub_process]]
+department = "Legal/Compliance"
+process = "Contract review"
+sub_process = "Check standard clauses"
+automation_grade = "partial"
+input_artifact = "contract draft (docx)"
+output_artifact = "clause report"
+interface_type = "file"
+effort_days = 5
+depends_on = ["Receive contract draft"]

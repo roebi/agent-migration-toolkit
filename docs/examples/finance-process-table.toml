@@ -1,0 +1,51 @@
+# Example process table of the Finance/Billing department.
+# Fields: see docs/usage.md and schema/process-table.schema.toml.
+
+[[sub_process]]
+department = "Finance/Billing"
+process = "Invoice run"
+sub_process = "Collect usage log"
+automation_grade = "full"
+output_artifact = "usage log (csv)"
+interface_type = "file"
+effort_days = 3
+
+[[sub_process]]
+department = "Finance/Billing"
+process = "Invoice run"
+sub_process = "Match usage to contract"
+automation_grade = "manual"
+input_artifact = "usage log (csv)"
+output_artifact = "match report (spreadsheet)"
+interface_type = "manual"
+notes = "currently sent as an email attachment; touches contract data"
+effort_days = 10
+depends_on = ["Collect usage log"]
+
+[[sub_process]]
+department = "Finance/Billing"
+process = "Invoice run"
+sub_process = "Create invoice"
+automation_grade = "partial"
+input_artifact = "match report (spreadsheet)"
+output_artifact = "invoice (pdf)"
+interface_type = "file"
+effort_days = 4
+depends_on = ["Match usage to contract"]
+
+[[sub_process]]
+department = "Finance/Billing"
+process = "Invoice run"
+sub_process = "Send invoice"
+automation_grade = "full"
+input_artifact = "invoice (pdf)"
+output_artifact = "sent invoice"
+interface_type = "openapi"
+
+[[sub_process]]
+department = "Finance/Billing"
+process = "Dunning"
+sub_process = "Flag overdue invoices"
+automation_grade = "manual"
+output_artifact = "overdue list"
+interface_type = "none"
