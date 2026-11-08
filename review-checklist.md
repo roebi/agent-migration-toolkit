@@ -54,7 +54,7 @@ All tests pass (183 passed, 5 skipped after review 2).
 | R-DEPLOY-001 | test_package.py, `uv build` (wheel holds both scripts) | yes | |
 | R-DEPLOY-002 | .github/workflows/ci.yml | not run | YAML valid; bandit + semgrep clean locally; needs GitHub remote (OQ-2) |
 | R-DEPLOY-003 | .github/workflows/release.yml | not run | needs GitHub remote + PyPI trusted publisher (OQ-2) |
-| R-DEPLOY-004 | Dockerfile, entrypoint.sh | yes | 2026-11-08 roebi on host: podman_build.sh ok; podman_run.sh -> 183 passed, 5 skipped; both CLIs on docs/examples give the documented output and exit codes 0, 0, 2, 1 |
+| R-DEPLOY-004 | Dockerfile, entrypoint.sh | yes | 2026-11-08 roebi on host: podman_build.sh ok; podman_run.sh -> 185 passed, 5 skipped (rerun after F-11/F-12 with :z mounts); both CLIs on docs/examples give the documented output and exit codes 0, 0, 2, 1 |
 | R-DOC-001 | test_docs.py `test_readme_*` | yes | README is the PyPI description; links absolute; twine check passes |
 | R-DOC-002 | `test_usage_guide_documents` | yes | 23 required topics |
 | R-DOC-003 | `test_documented_command_runs_with_documented_exit_code`, `test_every_example_process_table_is_valid` | yes | every `$` command in README and usage guide runs in-process on docs/examples |
