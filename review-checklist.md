@@ -54,7 +54,7 @@ All tests pass (183 passed, 5 skipped after review 2).
 | R-DEPLOY-001 | test_package.py, `uv build` (wheel holds both scripts) | yes | |
 | R-DEPLOY-002 | .github/workflows/ci.yml | not run | YAML valid; bandit + semgrep clean locally; needs GitHub remote (OQ-2) |
 | R-DEPLOY-003 | .github/workflows/release.yml | not run | needs GitHub remote + PyPI trusted publisher (OQ-2) |
-| R-DEPLOY-004 | Dockerfile, entrypoint.sh | not run | no podman in dev container |
+| R-DEPLOY-004 | Dockerfile, entrypoint.sh | yes (tests) | 2026-11-08 roebi on host: podman_build.sh ok, podman_run.sh -> 183 passed, 5 skipped; CLI runs pending |
 | R-DOC-001 | test_docs.py `test_readme_*` | yes | README is the PyPI description; links absolute; twine check passes |
 | R-DOC-002 | `test_usage_guide_documents` | yes | 23 required topics |
 | R-DOC-003 | `test_documented_command_runs_with_documented_exit_code`, `test_every_example_process_table_is_valid` | yes | every `$` command in README and usage guide runs in-process on docs/examples |
@@ -118,7 +118,9 @@ All tests pass (183 passed, 5 skipped after review 2).
 10. F-10 CI, release workflow and container are written but have never
     run (R-DEPLOY-002..004) - no GitHub push yet, no podman in the dev
     container - minor - verify on first push / before tagging; the
-    release workflow re-runs the tests before publishing
+    release workflow re-runs the tests before publishing. 2026-11-08:
+    container build and default test run verified by roebi on host
+    (183 passed, 5 skipped); CI and release still open
 
 ## Fix Log
 
