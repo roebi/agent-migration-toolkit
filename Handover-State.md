@@ -1,34 +1,43 @@
-# Handover State
+# Handover-State.md
 
-## Project
-agent-migration-toolkit - shared hub repo for the agent-migration program
-(process analysis, gap analysis, critical path timeline).
+```yaml
+skill: orchestrate-sw-dev-en
+goal: >-
+  Shared hub toolkit for the agent-migration program - process-table
+  schema, templates, gap analysis and a cross-department critical path
+  timeline - published so department repos can pip install it.
+current_phase: requirements
+results:
+  - phase: requirements
+    status: pending
+    output: requirements.md (input: input/r-proc-requirements.md, input/glossary.md, input/red-line.md, input/Handover-State-legacy.md)
+  - phase: design
+    status: pending
+    output: architecture.md (input: input/multi-repo-architecture.md)
+  - phase: implement
+    status: pending
+    output: TDD over existing src/ + new requirements
+  - phase: review
+    status: pending
+    output: review-checklist.md
+  - phase: release
+    status: pending
+    output: tagged release + changelog
+```
 
-## Status
-Hub repo scaffolded: schema, docs, templates, gap_analysis_creator tool
-with passing tests, Podman scaffold. Process table format switched from
-YAML to TOML (array-of-tables) per Roebi's request - schema, loader,
-CLI output, and docs all updated, 11 tests passing including a
-file-based TOML round-trip test. Department repos (Engineering/Dev-Ops,
-Product/QA, Customer Support, Sales/Account Mgmt, Legal/Compliance,
-Finance/Billing) do NOT exist yet - they get created per-department by
-each team, consuming this hub via pip install once published, and holding
-only their own process-table.toml plus a decision log.
+## Carry-over findings from the pre-analysis (2026-11-08)
 
-## Known issues
-- gap_analysis_creator.py is not yet published to PyPI, so department
-  repos cannot pip install it yet - only local/relative use for now.
-- critical_path_timeline.py (multi-department aggregator over
-  raw.githubusercontent.com) is not yet implemented - next step.
-- No CI workflow file yet (SEC gates: semgrep/bandit not wired in).
+- `gap_analysis_creator.py` coverage is 77% (< 80% gate): `main()`,
+  the non-list error path and the fallback gap text are untested.
+- `ruff check` fails: TRY004 at `gap_analysis_creator.py:37`
+  (`ValueError` for a type check).
+- `templates/automation-grade-decision-tree.md:16` still points to
+  `docs/multi-repo-architecture.md`, now in `input/`.
+- Container: Dockerfile/podman scripts switched to uv but not yet
+  built (no podman in the dev container).
 
-## Deferred items
-- Department repo scaffolding (6x), once naming is confirmed with Roebi.
-- PyPI publish of the toolkit package.
+## Context
 
-## Next steps
-- Define requirements for critical_path_timeline.py (R-PROC-005/007
-  aggregation across department repos via raw.githubusercontent.com)
-- Add CI workflow: semgrep/bandit on src/, pytest gate
-- Publish package to PyPI so department repos can pip install it
-- Confirm department repo naming convention, scaffold first one
+`input/` holds the pre-framework process files (legacy handover, early
+requirements and architecture, glossary, red line). They are input for
+the requirements and design phases, not living documents.
