@@ -93,3 +93,40 @@ def test_load_all_reports_timeout_as_department_failure(tmp_path):
     [loaded] = load_all([Source("Finance/Billing", url=RAW)], fetcher=fetcher, base_dir=tmp_path)
     assert loaded.rows is None
     assert loaded.error == "timeout after 10.0 s"
+
+
+def test_load_all_continues_after_failures_and_lists_reasons(tmp_path):
+    (tmp_path / "bad.toml").write_text("[[sub_process]\n", encoding="utf-8")
+
+    def fetcher(url, timeout):
+        return _table(department="Finance/Billing")
+
+    sources = [
+        Source("Legal/Compliance", path="missing.toml"),
+        Source("Product/QA", path="bad.toml"),
+        Source("Finance/Billing", url=RAW),
+    ]
+    missing, bad, ok = load_all(sources, fetcher=fetcher, base_dir=tmp_path)
+    assert "missing.toml" in missing.error
+    assert "not valid TOML" in bad.error
+    assert ok.error is None and ok.rows
+
+
+def test_load_all_reports_network_error_as_failure(tmp_path):
+    from urllib.error import URLError
+
+    def fetcher(url, timeout):
+        raise URLError("404 Not Found")
+
+    [loaded] = load_all([Source("Finance/Billing", url=RAW)], fetcher=fetcher, base_dir=tmp_path)
+    assert "404" in loaded.error
+
+
+def test_load_all_reports_url_error_caused_by_timeout_as_timeout(tmp_path):
+    from urllib.error import URLError
+
+    def fetcher(url, timeout):
+        raise URLError(TimeoutError("timed out"))
+
+    [loaded] = load_all([Source("Finance/Billing", url=RAW)], fetcher=fetcher, base_dir=tmp_path)
+    assert loaded.error == "timeout after 10.0 s"

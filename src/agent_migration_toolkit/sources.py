@@ -6,6 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from urllib.error import URLError
 from urllib.parse import urlsplit
 
 from agent_migration_toolkit.schema import ValidationError, load_table, parse_toml
@@ -69,10 +70,14 @@ def load_all(
 
 def _load_one(source: Source, fetcher: Fetcher, base_dir: Path, timeout: float) -> Loaded:
     try:
-        text = _read(source, fetcher, base_dir, timeout)
-    except TimeoutError:
-        return Loaded(source.department, error=f"timeout after {timeout} s")
-    return Loaded(source.department, rows=load_table(text))
+        rows = load_table(_read(source, fetcher, base_dir, timeout))
+    except (TimeoutError, URLError) as exc:
+        if isinstance(exc, TimeoutError) or isinstance(exc.reason, TimeoutError):
+            return Loaded(source.department, error=f"timeout after {timeout} s")
+        return Loaded(source.department, error=f"fetch failed: {exc.reason}")
+    except (OSError, UnicodeDecodeError, ValidationError) as exc:
+        return Loaded(source.department, error=str(exc))
+    return Loaded(source.department, rows=rows)
 
 
 def _read(source: Source, fetcher: Fetcher, base_dir: Path, timeout: float) -> str:
