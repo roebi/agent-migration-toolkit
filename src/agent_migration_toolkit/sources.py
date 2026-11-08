@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
-from agent_migration_toolkit.schema import ValidationError, parse_toml
+from agent_migration_toolkit.schema import ValidationError, load_table, parse_toml
 
 ALLOWED_HOST = "raw.githubusercontent.com"
+DEFAULT_TIMEOUT = 10.0
+
+Fetcher = Callable[[str, float], str]
 
 
 @dataclass(frozen=True)
@@ -43,3 +48,25 @@ def _is_allowed_url(url: Any) -> bool:
         return False
     parts = urlsplit(url)
     return parts.scheme == "https" and parts.hostname == ALLOWED_HOST
+
+
+@dataclass(frozen=True)
+class Loaded:
+    department: str
+    rows: list[dict[str, Any]] | None = None
+    error: str | None = None
+
+
+def load_all(
+    sources: list[Source],
+    fetcher: Fetcher,
+    base_dir: Path,
+    timeout: float = DEFAULT_TIMEOUT,
+) -> list[Loaded]:
+    """Load and validate every department's process table."""
+    return [_load_one(source, fetcher, base_dir, timeout) for source in sources]
+
+
+def _load_one(source: Source, fetcher: Fetcher, base_dir: Path, timeout: float) -> Loaded:
+    text = (base_dir / source.path).read_text(encoding="utf-8")
+    return Loaded(source.department, rows=load_table(text))
