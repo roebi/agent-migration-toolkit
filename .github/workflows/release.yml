@@ -9,7 +9,12 @@ permissions:
   contents: read
 
 jobs:
+  gates:
+    # Same gate set as on every push: tests + coverage, ruff, bandit, semgrep (R-DEPLOY-005)
+    uses: ./.github/workflows/ci.yml
+
   build:
+    needs: gates
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

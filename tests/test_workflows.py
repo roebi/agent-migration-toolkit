@@ -32,3 +32,22 @@ def triggers(workflow):
 
 def test_ci_can_be_called_as_reusable_workflow():
     assert "workflow_call" in triggers(load("ci.yml"))
+
+
+def needs(job):
+    value = job.get("needs", [])
+    return [value] if isinstance(value, str) else value
+
+
+def upstream(jobs, name):
+    """All jobs that must finish before job `name` starts."""
+    found = set()
+    for dep in needs(jobs[name]):
+        found |= {dep} | upstream(jobs, dep)
+    return found
+
+
+def test_release_publishes_only_after_ci_gates():
+    jobs = load("release.yml")["jobs"]
+    assert jobs["gates"]["uses"] == "./.github/workflows/ci.yml"
+    assert "gates" in upstream(jobs, "publish")
