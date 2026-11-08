@@ -142,3 +142,29 @@ def test_every_example_process_table_is_valid():
     assert tables
     for table in tables:
         load_table(table.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize(
+    "needle",
+    [
+        "pip install agent-migration-toolkit",
+        "uv add agent-migration-toolkit",
+        "gap-analysis-creator",
+        "critical-path-timeline",
+        "docs/usage.md",
+        "CHANGELOG.md",
+    ],
+)
+def test_readme_covers_install_quickstart_and_links(needle):
+    assert needle in README.read_text(encoding="utf-8")
+
+
+def test_readme_is_the_pypi_description(meta):
+    assert meta["Description-Content-Type"] == "text/markdown"
+    assert meta.get_payload().strip() == README.read_text(encoding="utf-8").strip()
+
+
+def test_readme_links_are_absolute_for_pypi():
+    links = re.findall(r"\]\(([^)]+)\)", README.read_text(encoding="utf-8"))
+    assert links
+    assert all(link.startswith(("https://", "#")) for link in links), links

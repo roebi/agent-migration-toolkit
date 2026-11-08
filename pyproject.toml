@@ -2,6 +2,7 @@
 name = "agent-migration-toolkit"
 version = "0.1.0"
 description = "Shared hub toolkit for the agent-migration program: process tables, gap analysis, critical path timeline"
+readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "roebi" }]
