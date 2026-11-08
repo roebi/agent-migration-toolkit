@@ -181,7 +181,7 @@ $ critical-path-timeline docs/examples/sources-partial.toml
 | Code | `gap-analysis-creator` | `critical-path-timeline` |
 |---|---|---|
 | 0 | gap table written | timeline written, all departments processed |
-| 1 | input missing, not UTF-8, not TOML or invalid | source list invalid, or no department could be processed |
-| 2 | invalid command line arguments | timeline written, but some departments failed; also invalid command line arguments |
+| 1 | input missing, not UTF-8, not TOML or invalid; invalid command line arguments | source list invalid, no department could be processed, or invalid command line arguments (e.g. `--timeout 0`) |
+| 2 | - | timeline written, but some departments failed |
 
-Code 2 for invalid arguments (e.g. `--timeout 0`) comes from argparse.
+Output on stdout is always UTF-8, independent of the console encoding.

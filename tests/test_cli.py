@@ -1,3 +1,5 @@
+import io
+import sys
 import tomllib
 
 import pytest
@@ -153,5 +155,33 @@ def test_timeline_main_rejects_non_positive_timeout(tmp_path, capsys, timeout):
     sources = _sources(tmp_path, f'name = "Legal/Compliance"\nurl = "{RAW}"')
     with pytest.raises(SystemExit) as excinfo:
         timeline_main([str(sources), "--timeout", timeout], fetcher=_fetch_legal)
-    assert excinfo.value.code == 2
+    assert excinfo.value.code == 1
     assert "--timeout" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    ("main", "argv"),
+    [(gap_main, []), (gap_main, ["t.toml", "--bogus"]), (timeline_main, ["s.toml", "--timeout", "0"])],
+    ids=["gap-missing-arg", "gap-unknown-option", "timeline-bad-timeout"],
+)
+def test_invalid_arguments_exit_1_not_2(main, argv, capsys):
+    with pytest.raises(SystemExit) as excinfo:
+        main(argv)
+    assert excinfo.value.code == 1
+    assert "usage:" in capsys.readouterr().err
+
+
+def test_help_still_exits_0(capsys):
+    with pytest.raises(SystemExit) as excinfo:
+        gap_main(["--help"])
+    assert excinfo.value.code == 0
+
+
+def test_output_is_utf8_even_when_stdout_encoding_is_not(tmp_path, monkeypatch):
+    path = tmp_path / "t.toml"
+    path.write_text(TABLE.replace("Match usage", "Сверка usage"), encoding="utf-8")
+    raw = io.BytesIO()
+    monkeypatch.setattr(sys, "stdout", io.TextIOWrapper(raw, encoding="cp1252"))
+    assert gap_main([str(path)]) == 0
+    sys.stdout.flush()
+    assert "Сверка" in raw.getvalue().decode("utf-8")

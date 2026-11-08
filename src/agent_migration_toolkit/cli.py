@@ -6,7 +6,7 @@ import argparse
 import math
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
 import tomli_w
 
@@ -22,12 +22,21 @@ from agent_migration_toolkit.sources import (
 from agent_migration_toolkit.timeline import build_timeline
 
 USER_ERRORS = (ValidationError, OSError, UnicodeDecodeError)
+EXIT_ERROR = 1
 EXIT_PARTIAL = 2
+
+
+class _Parser(argparse.ArgumentParser):
+    """argparse exits with 2 on bad arguments; use 1 so 2 only means a partial timeline."""
+
+    def error(self, message: str) -> NoReturn:
+        self.print_usage(sys.stderr)
+        self.exit(EXIT_ERROR, f"error: {message}\n")
 
 
 def gap_main(argv: list[str] | None = None) -> int:
     """gap-analysis-creator: process table -> gap table (R-GAP-004)."""
-    parser = argparse.ArgumentParser(
+    parser = _Parser(
         prog="gap-analysis-creator", description="Create a gap table from a process table"
     )
     parser.add_argument("process_table", type=Path, help="path to process-table.toml")
@@ -43,7 +52,7 @@ def gap_main(argv: list[str] | None = None) -> int:
 
 def timeline_main(argv: list[str] | None = None, fetcher: Fetcher = urllib_fetcher) -> int:
     """critical-path-timeline: source list -> program timeline (R-TIME-009)."""
-    parser = argparse.ArgumentParser(
+    parser = _Parser(
         prog="critical-path-timeline",
         description="Build the critical path timeline across department process tables",
     )
@@ -94,7 +103,7 @@ def _fail(exc: Exception) -> int:
     """Print a one-line error to stderr and return exit code 1 (NFR-03)."""
     message = " ".join(str(exc).split())
     sys.stderr.write(f"error: {message}\n")
-    return 1
+    return EXIT_ERROR
 
 
 def _add_output(parser: argparse.ArgumentParser) -> None:
@@ -106,6 +115,8 @@ def _add_output(parser: argparse.ArgumentParser) -> None:
 def _write(data: dict[str, Any], output: Path | None) -> None:
     text = tomli_w.dumps(data)
     if output is None:
-        sys.stdout.write(text)
+        sys.stdout.flush()
+        sys.stdout.buffer.write(text.encode("utf-8"))
+        sys.stdout.buffer.flush()
     else:
         output.write_text(text, encoding="utf-8")
