@@ -91,3 +91,48 @@ def test_critical_path_uses_float_tolerance(row):
 def test_empty_department_has_zero_length(row):
     result = schedule_department("Finance/Billing", [row(interface_type="openapi")])
     assert result["critical_path"] == [] and result["critical_path_days"] == 0
+
+
+def test_block_is_quick_ramp_in_first_20_percent_else_hardening(row):
+    # chain A(1) -> B(4) -> C(5): length 10, quick ramp = start < 2
+    rows = [
+        row(sub_process="A", effort_days=1),
+        row(sub_process="B", effort_days=4, depends_on=["A"]),
+        row(sub_process="C", effort_days=5, depends_on=["B"]),
+    ]
+    tasks = _by_name(schedule_department("Finance/Billing", rows))
+    assert tasks["A"]["block"] == "quick_ramp"
+    assert tasks["B"]["block"] == "quick_ramp"  # starts at 1 < 2
+    assert tasks["C"]["block"] == "hardening"  # starts at 5
+
+
+def test_block_at_exact_20_percent_is_hardening(row):
+    rows = [
+        row(sub_process="A", effort_days=2),
+        row(sub_process="B", effort_days=8, depends_on=["A"]),
+    ]
+    assert _by_name(schedule_department("Finance/Billing", rows))["B"]["block"] == "hardening"
+
+
+def test_block_for_zero_length_department_is_quick_ramp(row):
+    [task] = schedule_department("Finance/Billing", [row(effort_days=0)])["task"]
+    assert task["block"] == "quick_ramp"
+
+
+def test_task_lists_unestimated_gap_predecessors(row):
+    rows = [
+        row(sub_process="Unknown"),
+        row(sub_process="Done", interface_type="openapi"),
+        row(sub_process="Next", effort_days=1, depends_on=["Unknown", "Done"]),
+    ]
+    [task] = schedule_department("Finance/Billing", rows)["task"]
+    assert task["waits_on_unestimated"] == ["Unknown"]
+    assert task["earliest_start"] == 0
+
+
+def test_near_zero_slack_is_reported_as_zero(row):
+    rows = [
+        row(sub_process="A", effort_days=0.1),
+        row(sub_process="B", effort_days=0.2, depends_on=["A"]),
+    ]
+    assert all(t["slack_days"] == 0 for t in schedule_department("D", rows)["task"])
