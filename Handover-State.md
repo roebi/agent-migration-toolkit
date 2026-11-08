@@ -66,6 +66,6 @@ order: R-SCHEMA, R-SRC, R-GAP, R-TPL, R-TIME, CLI (R-GAP-004/005, R-TIME-009/010
 iteration_2_done: [R-DEPLOY-002 guard, R-DEPLOY-005, R-DEPLOY-006, permissions guard]
 done: [R-SCHEMA-001..009, R-SRC-001..007, R-GAP-001..005, R-TPL-001..003, R-TIME-001..010, R-DOC-001..005, R-DEPLOY-001..004, NFR-06]
 current: none
-last_green_commit: 5eacdf6
+last_green_commit: b6262a5
 exit_condition_met: true
 ```
