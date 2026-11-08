@@ -139,3 +139,19 @@ def test_load_all_rejects_table_of_other_department(tmp_path):
     )
     assert loaded.rows is None
     assert "Product/QA" in loaded.error and "Legal/Compliance" in loaded.error
+
+
+def test_urllib_fetcher_returns_decoded_body_and_passes_timeout(monkeypatch):
+    import io
+
+    from agent_migration_toolkit import sources
+
+    seen = {}
+
+    def fake_urlopen(url, timeout):
+        seen["args"] = (url, timeout)
+        return io.BytesIO("department = \"Ä\"".encode())
+
+    monkeypatch.setattr(sources.urllib.request, "urlopen", fake_urlopen)
+    assert sources.urllib_fetcher(RAW, 2.0) == 'department = "Ä"'
+    assert seen["args"] == (RAW, 2.0)

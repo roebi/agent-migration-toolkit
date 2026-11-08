@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import urllib.request
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -49,6 +50,12 @@ def _is_allowed_url(url: Any) -> bool:
         return False
     parts = urlsplit(url)
     return parts.scheme == "https" and parts.hostname == ALLOWED_HOST
+
+
+def urllib_fetcher(url: str, timeout: float) -> str:
+    """Fetch a URL as UTF-8 text. Callers pass only urls checked by _is_allowed_url."""
+    with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310
+        return response.read().decode("utf-8")
 
 
 @dataclass(frozen=True)
