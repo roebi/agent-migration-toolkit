@@ -85,3 +85,12 @@ def _depends_on_problems(depends_on: Any, known: set[Any]) -> list[str]:
 
 def _is_non_negative_number(value: Any) -> bool:
     return isinstance(value, int | float) and not isinstance(value, bool) and value >= 0
+
+
+def load_table(text: str) -> list[dict[str, Any]]:
+    """Parse and validate a process table; raise ValidationError listing every problem."""
+    rows = parse_table(text)
+    errors = validate_table(rows)
+    if errors:
+        raise ValidationError("; ".join(errors))
+    return rows

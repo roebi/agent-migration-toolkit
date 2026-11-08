@@ -1,6 +1,11 @@
 import pytest
 
-from agent_migration_toolkit.schema import ValidationError, parse_table, validate_table
+from agent_migration_toolkit.schema import (
+    ValidationError,
+    load_table,
+    parse_table,
+    validate_table,
+)
 
 
 def test_parse_table_returns_rows_from_sub_process_array():
@@ -106,3 +111,18 @@ def test_validate_table_rejects_duplicate_sub_process_in_same_department(row):
 def test_validate_table_allows_same_sub_process_name_in_other_department(row):
     rows = [row(), row(department="Legal/Compliance")]
     assert validate_table(rows) == []
+
+
+def test_load_table_returns_valid_rows():
+    text = (
+        '[[sub_process]]\ndepartment = "D"\nprocess = "P"\nsub_process = "S"\n'
+        'automation_grade = "full"\noutput_artifact = "o"\ninterface_type = "openapi"\n'
+    )
+    assert load_table(text)[0]["sub_process"] == "S"
+
+
+def test_load_table_raises_with_all_problems():
+    text = '[[sub_process]]\ndepartment = "D"\n\n[[sub_process]]\ndepartment = "E"\n'
+    with pytest.raises(ValidationError) as excinfo:
+        load_table(text)
+    assert str(excinfo.value).count("missing fields") == 2
