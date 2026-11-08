@@ -21,6 +21,7 @@ from agent_migration_toolkit.sources import (
 from agent_migration_toolkit.timeline import build_timeline
 
 USER_ERRORS = (ValidationError, OSError, UnicodeDecodeError)
+EXIT_PARTIAL = 2
 
 
 def gap_main(argv: list[str] | None = None) -> int:
@@ -54,10 +55,24 @@ def timeline_main(argv: list[str] | None = None, fetcher: Fetcher = urllib_fetch
         help=f"seconds per fetch (default: {DEFAULT_TIMEOUT})",
     )
     args = parser.parse_args(argv)
-    sources = parse_sources(_read_text(args.sources))
-    loaded = load_all(sources, fetcher=fetcher, base_dir=args.sources.parent, timeout=args.timeout)
-    _write(build_timeline(loaded), args.output)
-    return 0
+    try:
+        sources = parse_sources(_read_text(args.sources))
+        loaded = load_all(
+            sources, fetcher=fetcher, base_dir=args.sources.parent, timeout=args.timeout
+        )
+        timeline = build_timeline(loaded)
+        if not timeline["department"]:
+            raise ValidationError(f"no department could be processed: {_reasons(timeline)}")
+        _write(timeline, args.output)
+    except USER_ERRORS as exc:
+        return _fail(exc)
+    for failure in timeline["failure"]:
+        sys.stderr.write(f"warning: {failure['department']}: {failure['reason']}\n")
+    return EXIT_PARTIAL if timeline["failure"] else 0
+
+
+def _reasons(timeline: dict[str, Any]) -> str:
+    return "; ".join(f"{f['department']}: {f['reason']}" for f in timeline["failure"]) or "none"
 
 
 def _read_text(path: Path) -> str:

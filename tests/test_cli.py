@@ -107,3 +107,42 @@ def test_timeline_main_writes_output_file_and_passes_timeout(tmp_path, capsys):
     assert seen == [2.5]
     assert capsys.readouterr().out == ""
     assert tomllib.loads(out.read_text(encoding="utf-8"))["department"]
+
+
+def _fetch_timeout(url, timeout):
+    raise TimeoutError
+
+
+def test_timeline_main_some_departments_failed_exits_2_and_still_writes(tmp_path, capsys):
+    sources = _sources(
+        tmp_path,
+        'name = "Finance/Billing"\npath = "finance.toml"',
+        f'name = "Legal/Compliance"\nurl = "{RAW}"',
+    )
+    assert timeline_main([str(sources)], fetcher=_fetch_timeout) == 2
+    captured = capsys.readouterr()
+    result = tomllib.loads(captured.out)
+    assert result["failure"][0]["department"] == "Legal/Compliance"
+    assert "Legal/Compliance" in captured.err
+
+
+def test_timeline_main_no_department_processed_exits_1(tmp_path, capsys):
+    sources = _sources(tmp_path, f'name = "Legal/Compliance"\nurl = "{RAW}"')
+    assert timeline_main([str(sources)], fetcher=_fetch_timeout) == 1
+    captured = capsys.readouterr()
+    assert captured.err.startswith("error: ")
+
+
+@pytest.mark.parametrize(
+    "content",
+    [None, 'x = 1\n', '[[department]]\nname = "D"\nurl = "https://example.com/t.toml"\n'],
+    ids=["missing", "no-departments", "bad-host"],
+)
+def test_timeline_main_invalid_source_list_exits_1(tmp_path, capsys, content):
+    path = tmp_path / "sources.toml"
+    if content is not None:
+        path.write_text(content, encoding="utf-8")
+    assert timeline_main([str(path)], fetcher=_fetch_legal) == 1
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err.startswith("error: ") and captured.err.count("\n") == 1
