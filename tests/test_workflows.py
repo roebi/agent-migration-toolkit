@@ -23,3 +23,12 @@ def test_ci_runs_tests_with_coverage_lint_and_security_scans():
     commands = all_run_commands(load("ci.yml"))
     for gate in ("pytest --cov", "ruff check", "bandit", "semgrep"):
         assert gate in commands
+
+
+def triggers(workflow):
+    # PyYAML (YAML 1.1) reads the bare key `on` as boolean True.
+    return workflow.get("on", workflow.get(True))
+
+
+def test_ci_can_be_called_as_reusable_workflow():
+    assert "workflow_call" in triggers(load("ci.yml"))
