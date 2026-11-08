@@ -10,7 +10,9 @@ from typing import Any
 import tomli_w
 
 from agent_migration_toolkit.gap import compute_gaps
-from agent_migration_toolkit.schema import load_table
+from agent_migration_toolkit.schema import ValidationError, load_table
+
+USER_ERRORS = (ValidationError, OSError, UnicodeDecodeError)
 
 
 def gap_main(argv: list[str] | None = None) -> int:
@@ -21,9 +23,26 @@ def gap_main(argv: list[str] | None = None) -> int:
     parser.add_argument("process_table", type=Path, help="path to process-table.toml")
     _add_output(parser)
     args = parser.parse_args(argv)
-    rows = load_table(args.process_table.read_text(encoding="utf-8"))
-    _write({"gap": compute_gaps(rows)}, args.output)
+    try:
+        rows = load_table(_read_text(args.process_table))
+        _write({"gap": compute_gaps(rows)}, args.output)
+    except USER_ERRORS as exc:
+        return _fail(exc)
     return 0
+
+
+def _read_text(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValidationError(f"{path}: not UTF-8 text") from exc
+
+
+def _fail(exc: Exception) -> int:
+    """Print a one-line error to stderr and return exit code 1 (NFR-03)."""
+    message = " ".join(str(exc).split())
+    sys.stderr.write(f"error: {message}\n")
+    return 1
 
 
 def _add_output(parser: argparse.ArgumentParser) -> None:

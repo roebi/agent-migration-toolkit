@@ -41,3 +41,27 @@ def test_gap_main_writes_to_output_file(table, tmp_path, capsys):
     assert gap_main([str(table), "-o", str(out)]) == 0
     assert capsys.readouterr().out == ""
     assert len(tomllib.loads(out.read_text(encoding="utf-8"))["gap"]) == 1
+
+
+@pytest.mark.parametrize(
+    ("content", "needle"),
+    [
+        (None, "missing.toml"),
+        ("[[sub_process]\n", "not valid TOML"),
+        ('[[sub_process]]\ndepartment = "X"\n', "missing fields"),
+        (b"\xff\xfe", "UTF-8"),
+    ],
+    ids=["missing-file", "bad-toml", "schema-error", "not-utf8"],
+)
+def test_gap_main_invalid_input_exits_1_with_one_line_error(tmp_path, capsys, content, needle):
+    path = tmp_path / "missing.toml"
+    if isinstance(content, bytes):
+        path.write_bytes(content)
+    elif content is not None:
+        path.write_text(content, encoding="utf-8")
+    assert gap_main([str(path)]) == 1
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err.startswith("error: ")
+    assert captured.err.count("\n") == 1
+    assert needle in captured.err
