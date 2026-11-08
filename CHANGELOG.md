@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- README shows `uv tool install agent-migration-toolkit` for installing
+  both commands outside a project.
+
 ## [0.1.1] - 2026-11-08
 
 The installed package behaves exactly as in 0.1.0; this release changes

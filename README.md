@@ -31,6 +31,12 @@ or in a uv project:
 $ uv add agent-migration-toolkit
 ```
 
+or as standalone commands, available outside any project:
+
+```console
+$ uv tool install agent-migration-toolkit
+```
+
 ## Quickstart
 
 The example files are in

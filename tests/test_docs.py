@@ -147,6 +147,7 @@ def test_every_example_process_table_is_valid():
 @pytest.mark.parametrize(
     "needle",
     [
+        "uv tool install agent-migration-toolkit",
         "pip install agent-migration-toolkit",
         "uv add agent-migration-toolkit",
         "gap-analysis-creator",
