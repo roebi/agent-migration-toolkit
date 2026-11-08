@@ -9,8 +9,8 @@ goal: >-
 current_phase: requirements
 results:
   - phase: requirements
-    status: pending
-    output: requirements.md (input: input/r-proc-requirements.md, input/glossary.md, input/red-line.md, input/Handover-State-legacy.md)
+    status: in_progress
+    output: requirements.md draft - 6 groups, 38 requirements, 8 NFRs; awaiting roebi approval (input: input/r-proc-requirements.md, input/glossary.md, input/red-line.md, input/Handover-State-legacy.md)
   - phase: design
     status: pending
     output: architecture.md (input: input/multi-repo-architecture.md)
