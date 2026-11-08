@@ -13,7 +13,7 @@ results:
     output: requirements.md - 6 groups, 38 requirements, 8 NFRs; review passed, approved by roebi 2026-11-08 (input: input/r-proc-requirements.md, input/glossary.md, input/red-line.md, input/Handover-State-legacy.md)
   - phase: design
     status: in_progress
-    output: architecture.md (input: input/multi-repo-architecture.md)
+    output: architecture.md draft - 5 components, 2 open questions (OQ-1 unestimated predecessor, OQ-2 GitHub remote/PyPI setup); awaiting roebi approval (input: input/multi-repo-architecture.md)
   - phase: implement
     status: pending
     output: TDD over existing src/ + new requirements
