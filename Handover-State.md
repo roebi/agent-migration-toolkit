@@ -10,7 +10,7 @@ current_phase: review
 results:
   - phase: requirements
     status: done
-    output: requirements.md - 6 groups, 38 requirements, 8 NFRs; review passed, approved by roebi 2026-11-08 (input: input/r-proc-requirements.md, input/glossary.md, input/red-line.md, input/Handover-State-legacy.md)
+    output: requirements.md - 7 groups, 43 requirements, 8 NFRs; review passed, approved by roebi 2026-11-08 (R-DOC added from review F-04) (input: input/r-proc-requirements.md, input/glossary.md, input/red-line.md, input/Handover-State-legacy.md)
   - phase: design
     status: done
     output: architecture.md - 5 components; OQ-1 resolved (option a), OQ-2 open (GitHub remote/PyPI setup, blocks only R-DEPLOY-002/003 verification); approved by roebi 2026-11-08 (input: input/multi-repo-architecture.md)

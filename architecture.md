@@ -26,6 +26,11 @@ agent-migration-toolkit/
 ├── .github/workflows/
 │   ├── ci.yml                        R-DEPLOY-002
 │   └── release.yml                   R-DEPLOY-003
+├── README.md                         R-DOC-001 (also PyPI description)
+├── CHANGELOG.md                      R-DOC-004 (Keep a Changelog 1.1.0)
+├── docs/
+│   ├── usage.md                      R-DOC-002
+│   └── examples/                     R-DOC-003 (inputs used by the docs)
 ├── schema/
 │   └── process-table.schema.toml     R-SCHEMA-009 (example, must validate)
 ├── templates/*.md                    R-TPL-001..003
@@ -44,7 +49,8 @@ agent-migration-toolkit/
     ├── test_timeline.py              incl. NFR-06 performance test
     ├── test_cli.py
     ├── test_package.py               R-DEPLOY-001 (version, console scripts)
-    └── test_templates.py             R-TPL-001..003, R-SCHEMA-009
+    ├── test_templates.py             R-TPL-001..003, R-SCHEMA-009
+    └── test_docs.py                  R-DOC-001..005
 ```
 
 The current `gap_analysis_creator.py` is split into `schema.py`
@@ -247,7 +253,19 @@ department on stderr when it exits with 2.
 | R-TIME-009/010 | cli.py | test_cli.py |
 | R-DEPLOY-001 | pyproject.toml | test_package.py, `uv build` |
 | R-DEPLOY-002..004 | workflows, Dockerfile | CI run, container build (not yet run, OQ-2) |
+| R-DOC-001..005 | README.md, docs/, CHANGELOG.md, pyproject.toml | test_docs.py |
 | NFR-06 | timeline.py | test_timeline.py (6 x 200 rows < 5 s) |
+
+## Documentation Testing (R-DOC-003)
+
+Every shell command in README.md and docs/usage.md is written in a
+```` ```console ```` block as `$ <command>` and may be followed by a comment
+line `# exit: N`. `test_docs.py` extracts these commands, runs the CLI
+entry points in-process (`gap_main` / `timeline_main` with the parsed
+argv, working directory = repo root) and asserts the exit code, so no
+subprocess and no network are needed: documented url sources are served
+by a fake fetcher returning `docs/examples/` files. Install commands
+(`pip`, `uv add`) are skipped.
 
 ## Open Questions
 

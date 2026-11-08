@@ -26,7 +26,8 @@ Build order derived from `depends-on`:
 2. R-GAP     - gap analysis                       depends-on: R-SCHEMA
    R-TPL     - collection templates               depends-on: R-SCHEMA
 3. R-TIME    - critical path timeline             depends-on: R-SCHEMA, R-GAP, R-SRC
-4. R-DEPLOY  - packaging, CI, publishing          depends-on: all
+4. R-DOC     - user documentation, changelog      depends-on: R-SCHEMA, R-SRC, R-GAP, R-TIME
+5. R-DEPLOY  - packaging, CI, publishing          depends-on: all
 ```
 
 ### R-SCHEMA-000 - Process-table data contract
@@ -166,8 +167,35 @@ R-TIME-010: Exit with code 0 when all departments were processed, 2 when
   list itself is invalid or no department could be processed.
   driver: usability (scripts and CI can tell partial from total failure)
 
+### R-DOC-000 - User documentation and changelog
+depends-on: R-SCHEMA, R-SRC, R-GAP, R-TIME
+
+Added 2026-11-08 from review 1 finding F-04, approved by roebi.
+
+R-DOC-001: Provide a README.md with purpose, installation (pip and uv),
+  a quickstart for both CLI commands and links to the usage guide and
+  the changelog, and publish it as the PyPI project description.
+  driver: usability (PyPI page would be empty; department teams have no
+  entry point)
+R-DOC-002: Provide docs/usage.md describing the process-table fields,
+  the source list format including how relative and absolute `path`
+  entries are resolved, the TOML output of both commands and every exit
+  code.
+  driver: usability (today only --help and schema comments exist)
+R-DOC-003: Ship example input files under docs/examples/ and verify in
+  the test suite that every command shown in README.md and
+  docs/usage.md runs on them with the documented exit code.
+  driver: usability (prevents the docs from drifting away from the code)
+R-DOC-004: Maintain a CHANGELOG.md in Keep a Changelog 1.1.0 format with
+  an `[Unreleased]` section and one section per released version.
+  driver: usability (department teams see what changed before upgrading)
+R-DOC-005: Declare project URLs (Homepage, Repository, Changelog,
+  Issues), license, supported Python versions as classifiers and
+  keywords in the package metadata.
+  driver: usability (shown on the PyPI page, links users to the repo)
+
 ### R-DEPLOY-000 - Packaging, CI and publishing
-depends-on: R-SCHEMA, R-SRC, R-GAP, R-TPL, R-TIME
+depends-on: R-SCHEMA, R-SRC, R-GAP, R-TPL, R-TIME, R-DOC
 
 R-DEPLOY-001: Build the project as an installable Python package named
   `agent-migration-toolkit` that provides both CLI commands.
@@ -227,3 +255,5 @@ NFR-08: Code style - ruff check passes with the project configuration.
 - [x] Compliance-driven requirements reference the law/regulation and
       deadline (none present; Red Line is internal governance, NFR-05)
 - [x] Reviewed by: Claude agent on 2026-11-08, approved by roebi on 2026-11-08
+- [x] R-DOC group (5 requirements, from review finding F-04) re-checked
+      against the gates above and approved by roebi on 2026-11-08
