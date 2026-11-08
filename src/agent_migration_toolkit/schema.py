@@ -46,7 +46,12 @@ def validate_table(rows: list[dict[str, Any]]) -> list[str]:
     names_by_department: dict[Any, set[Any]] = {}
     for row in rows:
         names_by_department.setdefault(row.get("department"), set()).add(row.get("sub_process"))
+    seen: set[tuple[Any, Any]] = set()
     for index, row in enumerate(rows):
+        key = (row.get("department"), row.get("sub_process"))
+        if key in seen:
+            errors.append(f"{_label(index, row)}: duplicate department and sub_process")
+        seen.add(key)
         missing = [field for field in REQUIRED_FIELDS if field not in row]
         if missing:
             errors.append(f"{_label(index, row)}: missing fields {missing}")

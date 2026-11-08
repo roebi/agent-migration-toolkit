@@ -95,3 +95,14 @@ def test_validate_table_rejects_depends_on_that_is_not_a_list_of_strings(row):
     errors = validate_table([row(depends_on="A")])
     assert len(errors) == 1
     assert "depends_on" in errors[0]
+
+
+def test_validate_table_rejects_duplicate_sub_process_in_same_department(row):
+    errors = validate_table([row(), row()])
+    assert len(errors) == 1
+    assert "duplicate" in errors[0]
+
+
+def test_validate_table_allows_same_sub_process_name_in_other_department(row):
+    rows = [row(), row(department="Legal/Compliance")]
+    assert validate_table(rows) == []
