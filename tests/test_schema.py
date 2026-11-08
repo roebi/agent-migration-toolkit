@@ -56,3 +56,15 @@ def test_validate_table_accepts_valid_interface_types(row, itype):
 
 def test_validate_table_accepts_optional_free_text_fields(row):
     assert validate_table([row(input_artifact="usage log", notes="sent by email")]) == []
+
+
+@pytest.mark.parametrize("effort", [0, 3, 2.5])
+def test_validate_table_accepts_non_negative_effort_days(row, effort):
+    assert validate_table([row(effort_days=effort)]) == []
+
+
+@pytest.mark.parametrize("effort", [-1, "five", True])
+def test_validate_table_rejects_negative_or_non_numeric_effort_days(row, effort):
+    errors = validate_table([row(effort_days=effort)])
+    assert len(errors) == 1
+    assert "effort_days" in errors[0]

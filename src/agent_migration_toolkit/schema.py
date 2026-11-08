@@ -51,4 +51,13 @@ def validate_table(rows: list[dict[str, Any]]) -> list[str]:
         for field, allowed in ENUM_FIELDS.items():
             if row[field] not in allowed:
                 errors.append(f"{_label(index, row)}: invalid {field} {row[field]!r}")
+        if "effort_days" in row and not _is_non_negative_number(row["effort_days"]):
+            errors.append(
+                f"{_label(index, row)}: effort_days must be a non-negative number,"
+                f" got {row['effort_days']!r}"
+            )
     return errors
+
+
+def _is_non_negative_number(value: Any) -> bool:
+    return isinstance(value, int | float) and not isinstance(value, bool) and value >= 0
