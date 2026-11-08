@@ -131,3 +131,9 @@ def test_load_table_raises_with_all_problems():
 def test_parse_table_with_non_table_entries_raises():
     with pytest.raises(ValidationError, match=r"\[\[sub_process\]\]"):
         parse_table("sub_process = [1, 2]\n")
+
+
+def test_validate_table_reports_non_string_required_field(row):
+    errors = validate_table([row(department=["Finance"])])
+    assert len(errors) == 1
+    assert "department" in errors[0] and "string" in errors[0]

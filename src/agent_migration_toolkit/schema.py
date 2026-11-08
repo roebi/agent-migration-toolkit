@@ -42,24 +42,35 @@ def _label(index: int, row: dict[str, Any]) -> str:
 
 def validate_table(rows: list[dict[str, Any]]) -> list[str]:
     """Return every contract violation in the table, one message per problem."""
-    names_by_department: dict[Any, set[Any]] = {}
+    names_by_department: dict[str, set[str]] = {}
     for row in rows:
-        names_by_department.setdefault(row.get("department"), set()).add(row.get("sub_process"))
+        names_by_department.setdefault(_text(row, "department"), set()).add(
+            _text(row, "sub_process")
+        )
     errors: list[str] = []
-    seen: set[tuple[Any, Any]] = set()
+    seen: set[tuple[str, str]] = set()
     for index, row in enumerate(rows):
-        key = (row.get("department"), row.get("sub_process"))
+        key = (_text(row, "department"), _text(row, "sub_process"))
         problems = ["duplicate department and sub_process"] if key in seen else []
         seen.add(key)
-        problems += _row_problems(row, names_by_department[row.get("department")])
+        problems += _row_problems(row, names_by_department[key[0]])
         errors.extend(f"{_label(index, row)}: {problem}" for problem in problems)
     return errors
 
 
-def _row_problems(row: dict[str, Any], known: set[Any]) -> list[str]:
+def _text(row: dict[str, Any], field: str) -> str:
+    """Hashable text form of a field, used for lookups before types are checked."""
+    value = row.get(field)
+    return value if isinstance(value, str) else repr(value)
+
+
+def _row_problems(row: dict[str, Any], known: set[str]) -> list[str]:
     missing = [field for field in REQUIRED_FIELDS if field not in row]
     if missing:
         return [f"missing fields {missing}"]
+    not_text = [field for field in REQUIRED_FIELDS if not isinstance(row[field], str)]
+    if not_text:
+        return [f"fields must be strings: {not_text}"]
     problems = [
         f"invalid {field} {row[field]!r}"
         for field, allowed in ENUM_FIELDS.items()
@@ -72,7 +83,7 @@ def _row_problems(row: dict[str, Any], known: set[Any]) -> list[str]:
     return problems
 
 
-def _depends_on_problems(depends_on: Any, known: set[Any]) -> list[str]:
+def _depends_on_problems(depends_on: Any, known: set[str]) -> list[str]:
     if not isinstance(depends_on, list) or not all(isinstance(n, str) for n in depends_on):
         return [f"depends_on must be a list of sub_process names, got {depends_on!r}"]
     return [
