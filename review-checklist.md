@@ -54,7 +54,7 @@ All tests pass (183 passed, 5 skipped after review 2).
 | R-DEPLOY-001 | test_package.py, `uv build` (wheel holds both scripts) | yes | |
 | R-DEPLOY-002 | .github/workflows/ci.yml | not run | YAML valid; bandit + semgrep clean locally; needs GitHub remote (OQ-2) |
 | R-DEPLOY-003 | .github/workflows/release.yml | not run | needs GitHub remote + PyPI trusted publisher (OQ-2) |
-| R-DEPLOY-004 | Dockerfile, entrypoint.sh | yes (tests) | 2026-11-08 roebi on host: podman_build.sh ok, podman_run.sh -> 183 passed, 5 skipped; CLI runs pending |
+| R-DEPLOY-004 | Dockerfile, entrypoint.sh | yes | 2026-11-08 roebi on host: podman_build.sh ok; podman_run.sh -> 183 passed, 5 skipped; both CLIs on docs/examples give the documented output and exit codes 0, 0, 2, 1 |
 | R-DOC-001 | test_docs.py `test_readme_*` | yes | README is the PyPI description; links absolute; twine check passes |
 | R-DOC-002 | `test_usage_guide_documents` | yes | 23 required topics |
 | R-DOC-003 | `test_documented_command_runs_with_documented_exit_code`, `test_every_example_process_table_is_valid` | yes | every `$` command in README and usage guide runs in-process on docs/examples |
@@ -119,8 +119,13 @@ All tests pass (183 passed, 5 skipped after review 2).
     run (R-DEPLOY-002..004) - no GitHub push yet, no podman in the dev
     container - minor - verify on first push / before tagging; the
     release workflow re-runs the tests before publishing. 2026-11-08:
-    container build and default test run verified by roebi on host
-    (183 passed, 5 skipped); CI and release still open
+    container verified by roebi on host (build, test suite, both CLIs,
+    exit codes 0/2/1); CI and release still open
+11. F-11 a row with missing required fields skips its enum, effort_days
+    and depends_on checks, so docs/examples/broken-table.toml reports
+    only the missing fields, not `interface_type = "carrier_pigeon"`;
+    docs/usage.md says "every problem at once" - schema.py `_row_problems`
+    - minor - found in the container run 2026-11-08, open
 
 ## Fix Log
 
@@ -139,5 +144,5 @@ Review 2:
 ```yaml
 phase: review
 status: done
-output: review-checklist.md - 0 critical, 0 major, 2 minor open (F-07 accepted, F-10 verify CI/container on first push)
+output: review-checklist.md - 0 critical, 0 major, 3 minor open (F-07 accepted, F-10 verify CI on first push, F-11 partial row validation)
 ```
