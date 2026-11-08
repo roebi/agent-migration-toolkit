@@ -41,3 +41,17 @@ results:
 `input/` holds the pre-framework process files (legacy handover, early
 requirements and architecture, glossary, red line). They are input for
 the requirements and design phases, not living documents.
+
+## TDD loop state (apply-tdd-loop-en)
+
+```yaml
+skill: apply-tdd-loop-en
+entry_point: A (requirements.md) + B (existing gap_analysis_creator.py)
+language: Python 3.11+
+test_framework: pytest + pytest-cov
+order: R-SCHEMA, R-SRC, R-GAP, R-TPL, R-TIME, CLI (R-GAP-004/005, R-TIME-009/010), R-DEPLOY
+done: []
+current: R-SCHEMA-001
+last_green_commit: 63175fe
+exit_condition_met: false
+```
