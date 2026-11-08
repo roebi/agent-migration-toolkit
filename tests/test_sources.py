@@ -35,3 +35,17 @@ def test_parse_sources_entry_without_name_raises():
 def test_parse_sources_requires_exactly_one_of_url_and_path(fields):
     with pytest.raises(ValidationError, match="Finance/Billing.*exactly one of url or path"):
         parse_sources(f'[[department]]\nname = "Finance/Billing"\n{fields}')
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://raw.githubusercontent.com/roebi/x/main/t.toml",
+        "https://example.com/t.toml",
+        "https://raw.githubusercontent.com.evil.io/t.toml",
+        "file:///etc/passwd",
+    ],
+)
+def test_parse_sources_rejects_url_outside_https_raw_github(url):
+    with pytest.raises(ValidationError, match="raw.githubusercontent.com"):
+        parse_sources(f'[[department]]\nname = "D"\nurl = "{url}"\n')
