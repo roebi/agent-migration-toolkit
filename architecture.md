@@ -20,8 +20,9 @@ injectable callable.
 agent-migration-toolkit/
 ├── pyproject.toml                    R-DEPLOY-001 (2 console scripts)
 ├── uv.lock
-├── Dockerfile, entrypoint.sh,
-│   podman_build.sh, podman_run.sh    R-DEPLOY-004
+├── Dockerfile, .containerignore,
+│   entrypoint.sh, podman_build.sh,
+│   podman_run.sh                     R-DEPLOY-004
 ├── .github/workflows/
 │   ├── ci.yml                        R-DEPLOY-002
 │   └── release.yml                   R-DEPLOY-003
@@ -36,14 +37,14 @@ agent-migration-toolkit/
 │   ├── timeline.py                   R-TIME-001..008
 │   └── cli.py                        R-GAP-004/005, R-TIME-009/010
 └── tests/
-    ├── conftest.py                   row/table builders, fake fetcher
+    ├── conftest.py                   row builder fixture
     ├── test_schema.py
     ├── test_gap.py
     ├── test_sources.py
-    ├── test_timeline.py
+    ├── test_timeline.py              incl. NFR-06 performance test
     ├── test_cli.py
-    ├── test_templates.py             R-TPL-002/003, R-SCHEMA-009
-    └── fixtures/                     sample process tables, source lists
+    ├── test_package.py               R-DEPLOY-001 (version, console scripts)
+    └── test_templates.py             R-TPL-001..003, R-SCHEMA-009
 ```
 
 The current `gap_analysis_creator.py` is split into `schema.py`
@@ -225,6 +226,13 @@ reason = "timeout after 10.0 s"
   and that every relative file path mentioned in `templates/` exists
   (R-TPL-003).
 
+Implementation notes (TDD phase, 2026-11-08): fakes are defined inline
+in the tests, so no `fixtures/` directory was needed. `schema.parse_toml`
+is shared by `parse_table` and `sources.parse_sources`. Topological order
+and cycle detection use stdlib `graphlib`. Near-zero slack (< 1e-9) is
+reported as 0. The timeline CLI prints one `warning:` line per failed
+department on stderr when it exits with 2.
+
 ## Requirement Traceability
 
 | Group | Module | Test file |
@@ -237,7 +245,8 @@ reason = "timeout after 10.0 s"
 | R-TPL-001..003 | templates/ | test_templates.py |
 | R-TIME-001..008 | timeline.py (+ sources.py for 001) | test_timeline.py |
 | R-TIME-009/010 | cli.py | test_cli.py |
-| R-DEPLOY-001..004 | pyproject, workflows, Dockerfile | CI run, `uv build`, container build |
+| R-DEPLOY-001 | pyproject.toml | test_package.py, `uv build` |
+| R-DEPLOY-002..004 | workflows, Dockerfile | CI run, container build (not yet run, OQ-2) |
 | NFR-06 | timeline.py | test_timeline.py (6 x 200 rows < 5 s) |
 
 ## Open Questions
